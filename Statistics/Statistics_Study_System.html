@@ -1,0 +1,1421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Statistics — Study System</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,600;1,400&display=swap');
+
+  :root {
+    --bg: #0e1117;
+    --surface: #161b27;
+    --surface2: #1e2535;
+    --border: #2a3350;
+    --accent: #4ade80;
+    --accent2: #38bdf8;
+    --accent3: #f97316;
+    --warn: #fbbf24;
+    --text: #e2e8f0;
+    --muted: #7c8db5;
+    --heading: #f0f4ff;
+    --tag-bg: #1e2d1e;
+    --tag-text: #4ade80;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'IBM Plex Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 15px;
+    line-height: 1.7;
+  }
+
+  /* SIDEBAR */
+  #sidebar {
+    position: fixed;
+    left: 0; top: 0; bottom: 0;
+    width: 260px;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+    padding: 20px 0;
+    z-index: 100;
+  }
+
+  #sidebar h2 {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    padding: 0 20px 12px;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 8px;
+  }
+
+  #sidebar a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 7px 20px;
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 13px;
+    transition: all 0.15s;
+    border-left: 2px solid transparent;
+  }
+
+  #sidebar a:hover, #sidebar a.active {
+    color: var(--text);
+    background: var(--surface2);
+    border-left-color: var(--accent);
+  }
+
+  #sidebar a .num {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    min-width: 20px;
+  }
+
+  /* MAIN */
+  #main {
+    margin-left: 260px;
+    padding: 40px 56px;
+    max-width: 1000px;
+  }
+
+  /* HERO */
+  .hero {
+    padding: 48px 0 40px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 48px;
+  }
+
+  .hero .label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  .hero h1 {
+    font-size: 42px;
+    font-weight: 300;
+    color: var(--heading);
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+  }
+
+  .hero h1 span { color: var(--accent); font-weight: 600; }
+
+  .hero .meta {
+    margin-top: 16px;
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+
+  .hero .meta span {
+    font-size: 13px;
+    color: var(--muted);
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  /* TOPIC SECTION */
+  .topic {
+    margin-bottom: 64px;
+    scroll-margin-top: 32px;
+  }
+
+  .topic-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 28px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .topic-num {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    background: var(--tag-bg);
+    border: 1px solid var(--accent);
+    padding: 3px 9px;
+    border-radius: 3px;
+    letter-spacing: 0.05em;
+    flex-shrink: 0;
+  }
+
+  .topic-header h2 {
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--heading);
+    letter-spacing: -0.01em;
+  }
+
+  /* SUBSECTION */
+  .sub {
+    margin-bottom: 28px;
+  }
+
+  .sub h3 {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent2);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .sub h3::before {
+    content: '';
+    display: inline-block;
+    width: 16px;
+    height: 1px;
+    background: var(--accent2);
+  }
+
+  /* INTUITION BOX */
+  .intuition {
+    background: linear-gradient(135deg, #0f2027, #1a2f1a);
+    border: 1px solid var(--accent);
+    border-left: 3px solid var(--accent);
+    border-radius: 6px;
+    padding: 14px 18px;
+    margin-bottom: 20px;
+    font-style: italic;
+    color: #c8f7dc;
+    font-size: 14px;
+  }
+
+  .intuition::before {
+    content: '💡 ';
+  }
+
+  /* FORMULA BOX */
+  .formula-box {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 18px 22px;
+    margin: 12px 0;
+    text-align: center;
+    overflow-x: auto;
+  }
+
+  /* TABLE */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 12px 0;
+    font-size: 14px;
+  }
+
+  th {
+    background: var(--surface2);
+    color: var(--accent2);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 10px 14px;
+    text-align: left;
+    border: 1px solid var(--border);
+  }
+
+  td {
+    padding: 9px 14px;
+    border: 1px solid var(--border);
+    color: var(--text);
+    vertical-align: top;
+  }
+
+  tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+  tr:hover td { background: var(--surface2); }
+
+  /* COLLAPSIBLE */
+  .collapsible {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin: 16px 0;
+    overflow: hidden;
+  }
+
+  .collapsible summary {
+    padding: 14px 18px;
+    cursor: pointer;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    user-select: none;
+    list-style: none;
+    transition: color 0.15s, background 0.15s;
+  }
+
+  .collapsible summary:hover {
+    color: var(--text);
+    background: var(--surface2);
+  }
+
+  .collapsible summary::before {
+    content: '▶';
+    font-size: 9px;
+    transition: transform 0.2s;
+    color: var(--accent);
+  }
+
+  .collapsible[open] summary::before { transform: rotate(90deg); }
+
+  .collapsible-body {
+    padding: 18px 20px;
+    border-top: 1px solid var(--border);
+    background: var(--bg);
+  }
+
+  /* MISTAKE BOX */
+  .mistake {
+    background: #1f1508;
+    border: 1px solid #7c4a05;
+    border-left: 3px solid var(--warn);
+    border-radius: 6px;
+    padding: 14px 18px;
+    margin: 12px 0;
+    font-size: 14px;
+    color: #fde68a;
+  }
+
+  .mistake::before { content: '⚠️  '; }
+
+  /* ML BOX */
+  .ml-box {
+    background: #0c1a2e;
+    border: 1px solid #1e3a5f;
+    border-left: 3px solid var(--accent2);
+    border-radius: 6px;
+    padding: 14px 18px;
+    margin: 12px 0;
+    font-size: 14px;
+  }
+
+  .ml-box::before { content: '🏭  '; }
+
+  /* CODE */
+  pre, code {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+  }
+
+  pre {
+    background: #0a0e1a;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 16px 18px;
+    overflow-x: auto;
+    margin: 10px 0;
+    line-height: 1.6;
+    color: #a8d8ea;
+  }
+
+  code {
+    background: var(--surface2);
+    padding: 2px 6px;
+    border-radius: 3px;
+    color: var(--accent2);
+    font-size: 13px;
+  }
+
+  pre code {
+    background: transparent;
+    padding: 0;
+    color: inherit;
+  }
+
+  /* RECALL / EXAM BOXES */
+  .recall-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 18px 20px;
+    margin: 12px 0;
+  }
+
+  .recall-box h4 {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  .recall-box.recall h4 { color: var(--accent); }
+  .recall-box.exam h4 { color: var(--accent3); }
+
+  .recall-box ol, .recall-box ul {
+    padding-left: 20px;
+  }
+
+  .recall-box li {
+    margin-bottom: 6px;
+    font-size: 14px;
+  }
+
+  /* SUMMARY BOX */
+  .summary-box {
+    background: linear-gradient(135deg, var(--surface2), #0f1f2f);
+    border: 1px solid var(--accent2);
+    border-radius: 8px;
+    padding: 20px 22px;
+    margin-top: 24px;
+  }
+
+  .summary-box h4 {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent2);
+    margin-bottom: 12px;
+  }
+
+  .summary-box ul {
+    padding-left: 18px;
+    font-size: 14px;
+  }
+
+  .summary-box li { margin-bottom: 5px; }
+
+  /* MASTER SHEET */
+  .master-sheet {
+    background: var(--surface);
+    border: 1px solid var(--accent);
+    border-radius: 10px;
+    padding: 28px;
+    margin: 32px 0;
+  }
+
+  .master-sheet h2 {
+    font-size: 18px;
+    color: var(--accent);
+    font-family: 'IBM Plex Mono', monospace;
+    letter-spacing: 0.1em;
+    margin-bottom: 20px;
+  }
+
+  /* DIVIDER */
+  .divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 40px 0;
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+
+  /* TOC TABLE */
+  .toc table th { background: #0a1a0a; }
+  .toc .star { color: var(--warn); }
+
+  /* Progress indicator */
+  #progress {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--border);
+    z-index: 200;
+  }
+  #progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    width: 0%;
+    transition: width 0.1s;
+  }
+
+  @media (max-width: 768px) {
+    #sidebar { display: none; }
+    #main { margin-left: 0; padding: 24px 20px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="progress"><div id="progress-bar"></div></div>
+
+<!-- SIDEBAR -->
+<nav id="sidebar">
+  <h2>Statistics</h2>
+  <a href="#toc"><span class="num">00</span> Overview</a>
+  <a href="#t1"><span class="num">01</span> Data Tables</a>
+  <a href="#t2"><span class="num">02</span> Bar Graph</a>
+  <a href="#t3"><span class="num">03</span> Pie Chart</a>
+  <a href="#t4"><span class="num">04</span> Histogram</a>
+  <a href="#t5"><span class="num">05</span> Central Tendency</a>
+  <a href="#t6"><span class="num">06</span> Spread</a>
+  <a href="#t7"><span class="num">07</span> Outliers</a>
+  <a href="#t8"><span class="num">08</span> Z-Score</a>
+  <a href="#t9"><span class="num">09</span> Normal Distribution</a>
+  <a href="#t10"><span class="num">10</span> Covariance</a>
+  <a href="#t11"><span class="num">11</span> Correlation</a>
+  <a href="#t12"><span class="num">12</span> Probability</a>
+  <a href="#t13"><span class="num">13</span> Bayes' Theorem</a>
+  <a href="#t14"><span class="num">14</span> Descriptive vs Inferential</a>
+  <a href="#t15"><span class="num">15</span> Hypothesis Testing</a>
+  <a href="#t16"><span class="num">16</span> T-Test</a>
+  <a href="#formulas"><span class="num">★</span> Formula Sheet</a>
+</nav>
+
+<!-- MAIN -->
+<main id="main">
+
+  <div class="hero">
+    <div class="label">Study System · Statistics Visualization</div>
+    <h1>Statistics<br><span>Study System</span></h1>
+    <div class="meta">
+      <span>16 Topics</span>
+      <span>270 Slides → Compressed</span>
+      <span>Exam + ML/DS Ready</span>
+    </div>
+  </div>
+
+  <!-- TOC -->
+  <div class="topic toc" id="toc">
+    <div class="topic-header">
+      <span class="topic-num">00</span>
+      <h2>Master Overview</h2>
+    </div>
+    <table>
+      <thead><tr><th>#</th><th>Topic</th><th>Key Formula</th><th>Weight</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>Data Tables & Frequency</td><td>—</td><td class="star">⭐</td></tr>
+        <tr><td>2</td><td>Bar Graph</td><td>—</td><td class="star">⭐</td></tr>
+        <tr><td>3</td><td>Pie Chart</td><td>Angle = (f/n)×360</td><td class="star">⭐</td></tr>
+        <tr><td>4</td><td>Histogram</td><td>—</td><td class="star">⭐⭐</td></tr>
+        <tr><td>5</td><td>Central Tendency</td><td>Mean, Median, Mode</td><td class="star">⭐⭐⭐</td></tr>
+        <tr><td>6</td><td>Measure of Spread</td><td>Var, SD, IQR</td><td class="star">⭐⭐⭐</td></tr>
+        <tr><td>7</td><td>Outliers</td><td>IQR Fence Method</td><td class="star">⭐⭐⭐</td></tr>
+        <tr><td>8</td><td>Z-Score</td><td>\(z = (x-\mu)/\sigma\)</td><td class="star">⭐⭐⭐</td></tr>
+        <tr><td>9</td><td>Normal Distribution</td><td>68-95-99.7 Rule</td><td class="star">⭐⭐⭐</td></tr>
+        <tr><td>10</td><td>Covariance</td><td>Cov(X,Y) formula</td><td class="star">⭐⭐⭐</td></tr>
+        <tr><td>11</td><td>Correlation</td><td>\(r = \text{Cov}/\sigma_x\sigma_y\)</td><td class="star">⭐⭐⭐</td></tr>
+        <tr><td>12</td><td>Probability Basics</td><td>P(A), P(A∩B), P(A∪B)</td><td class="star">⭐⭐⭐</td></tr>
+        <tr><td>13</td><td>Bayes' Theorem</td><td>\(P(A|B) = P(B|A)P(A)/P(B)\)</td><td class="star">⭐⭐⭐</td></tr>
+        <tr><td>14</td><td>Descriptive vs Inferential</td><td>—</td><td class="star">⭐⭐</td></tr>
+        <tr><td>15</td><td>Hypothesis Testing</td><td>H₀, H₁, p-value, α</td><td class="star">⭐⭐⭐</td></tr>
+        <tr><td>16</td><td>T-Test</td><td>\(t = (\bar{x}-\mu)/(s/\sqrt{n})\)</td><td class="star">⭐⭐⭐</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <hr class="divider">
+
+  <!-- TOPIC 1 -->
+  <div class="topic" id="t1">
+    <div class="topic-header">
+      <span class="topic-num">T-01</span>
+      <h2>Data Tables (One-Way Table)</h2>
+    </div>
+    <div class="intuition">A table is just structured storage — rows = observations, columns = variables.</div>
+    <div class="sub">
+      <h3>Definition</h3>
+      <p>A <strong>Data Table</strong> is a tabular representation of data organized into <strong>rows</strong> (individual records) and <strong>columns</strong> (variables/features). A <strong>one-way table</strong> shows frequency counts of a single variable.</p>
+    </div>
+    <div class="sub">
+      <h3>Example</h3>
+      <table>
+        <thead><tr><th>Fruit</th><th>Frequency</th></tr></thead>
+        <tbody>
+          <tr><td>Apple</td><td>10</td></tr>
+          <tr><td>Mango</td><td>6</td></tr>
+          <tr><td>Banana</td><td>8</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="ml-box">Every DataFrame in pandas IS a data table. <code>df.value_counts()</code> builds a one-way frequency table.</div>
+  </div>
+
+  <!-- TOPIC 2 -->
+  <div class="topic" id="t2">
+    <div class="topic-header">
+      <span class="topic-num">T-02</span>
+      <h2>Bar Graph</h2>
+    </div>
+    <div class="intuition">Turn frequency counts into visible heights — compare categories at a glance.</div>
+    <div class="sub">
+      <h3>Definition</h3>
+      <p>A <strong>Bar Graph</strong> displays <strong>categorical data</strong> where each bar's height = frequency. Bars are <strong>separated</strong> (not touching).</p>
+    </div>
+    <div class="sub">
+      <h3>Key Rules</h3>
+      <table>
+        <thead><tr><th>Axis</th><th>What goes on it</th></tr></thead>
+        <tbody>
+          <tr><td>X-axis</td><td>Categories (nominal or ordinal)</td></tr>
+          <tr><td>Y-axis</td><td>Frequency or proportion</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="mistake">Do NOT use bar graph for continuous data → use histogram. Always start Y-axis at 0 to avoid misleading visuals.</div>
+    <div class="ml-box">Class distribution check before training. Imbalanced classes are immediately visible.<br><pre><code>df['label'].value_counts().plot(kind='bar')</code></pre></div>
+  </div>
+
+  <!-- TOPIC 3 -->
+  <div class="topic" id="t3">
+    <div class="topic-header">
+      <span class="topic-num">T-03</span>
+      <h2>Pie Chart</h2>
+    </div>
+    <div class="intuition">Show what percentage of the whole each category takes — proportions, not counts.</div>
+    <div class="sub">
+      <h3>Formulas</h3>
+      <div class="formula-box">
+        $$\text{Angle} = \frac{f}{n} \times 360° \qquad \text{Percentage} = \frac{f}{n} \times 100$$
+      </div>
+    </div>
+    <div class="sub">
+      <h3>Solved Example</h3>
+      <p>Fruits: Apple=10, Banana=8, Mango=6. Total = 24.</p>
+      <table>
+        <thead><tr><th>Fruit</th><th>Freq</th><th>Angle</th></tr></thead>
+        <tbody>
+          <tr><td>Apple</td><td>10</td><td>(10/24)×360 = <strong>150°</strong></td></tr>
+          <tr><td>Banana</td><td>8</td><td>(8/24)×360 = <strong>120°</strong></td></tr>
+          <tr><td>Mango</td><td>6</td><td>(6/24)×360 = <strong>90°</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="mistake">Avoid pie charts with more than 5 categories — becomes unreadable. Can't show trends over time → use line chart.</div>
+    <div class="ml-box">Class proportion visualization. One huge slice = class imbalance problem.</div>
+  </div>
+
+  <!-- TOPIC 4 -->
+  <div class="topic" id="t4">
+    <div class="topic-header">
+      <span class="topic-num">T-04</span>
+      <h2>Histogram</h2>
+    </div>
+    <div class="intuition">Like a bar graph, but for continuous data — group values into bins and count how many fall in each.</div>
+    <div class="sub">
+      <h3>Definition</h3>
+      <p>A <strong>Histogram</strong> is a frequency plot for <strong>continuous/numerical data</strong> divided into equal-width <strong>bins</strong>. Bars <strong>touch each other</strong> (unlike bar graph).</p>
+    </div>
+    <div class="sub">
+      <h3>Solved Example — Ages with bin width 10</h3>
+      <table>
+        <thead><tr><th>Bin</th><th>Count</th></tr></thead>
+        <tbody>
+          <tr><td>10–20</td><td>10</td></tr>
+          <tr><td>20–30</td><td>21</td></tr>
+          <tr><td>30–40</td><td>28</td></tr>
+          <tr><td>40–50</td><td>32</td></tr>
+          <tr><td>50–60</td><td>40</td></tr>
+          <tr><td>60–70</td><td>46</td></tr>
+          <tr><td>70–80</td><td>37</td></tr>
+          <tr><td>80–90</td><td>31</td></tr>
+          <tr><td>90–100</td><td>10</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="mistake">Histogram bars MUST touch (continuous data). Too-wide bins → lose detail. Too-narrow → noisy.</div>
+    <div class="ml-box">Feature distribution before preprocessing. Skewed histogram → log transform. Multimodal → mixed populations.<br><pre><code>df['age'].hist(bins=10)</code></pre></div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- TOPIC 5 -->
+  <div class="topic" id="t5">
+    <div class="topic-header">
+      <span class="topic-num">T-05</span>
+      <h2>Measure of Central Tendency</h2>
+    </div>
+    <div class="intuition">Where is the center of the data? Three different answers depending on what "center" means.</div>
+
+    <div class="sub">
+      <h3>Mean</h3>
+      <div class="formula-box">$$\bar{x} = \frac{\sum_{i=1}^{n} x_i}{n}$$</div>
+      <p>Sum all values, divide by count. <strong>Weakness:</strong> pulled hard by outliers.</p>
+      <p><strong>Example:</strong> [2, 4, 6, 8, 10] → Mean = 30/5 = <strong>6</strong></p>
+    </div>
+
+    <div class="sub">
+      <h3>Median</h3>
+      <p>Middle value after sorting. If n is even → average the two middle values.</p>
+      <p><strong>Odd:</strong> [1,3,<u>5</u>,7,9] → Median = <strong>5</strong></p>
+      <p><strong>Even:</strong> [1,3,5,7] → Median = (3+5)/2 = <strong>4</strong></p>
+      <p><strong>Strength:</strong> Not affected by outliers (robust).</p>
+    </div>
+
+    <div class="sub">
+      <h3>Mode</h3>
+      <p>Value that appears most frequently.</p>
+      <p><strong>Example:</strong> [2,2,6,6,8,8,9,10,10,10,10] → Mode = <strong>10</strong></p>
+    </div>
+
+    <div class="sub">
+      <h3>Comparison Table</h3>
+      <table>
+        <thead><tr><th>Measure</th><th>Formula</th><th>Outlier Sensitive?</th><th>Best For</th></tr></thead>
+        <tbody>
+          <tr><td>Mean</td><td>Σx/n</td><td>YES ❌</td><td>Symmetric data, no outliers</td></tr>
+          <tr><td>Median</td><td>Middle value</td><td>NO ✓</td><td>Skewed data, has outliers</td></tr>
+          <tr><td>Mode</td><td>Most frequent</td><td>NO ✓</td><td>Categorical data, finding peaks</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="sub">
+      <h3>Skewness Rule</h3>
+      <table>
+        <thead><tr><th>Distribution</th><th>Relationship</th></tr></thead>
+        <tbody>
+          <tr><td>Symmetric (Normal)</td><td>Mean = Median = Mode</td></tr>
+          <tr><td>Right-skewed (positive)</td><td>Mean &gt; Median &gt; Mode</td></tr>
+          <tr><td>Left-skewed (negative)</td><td>Mean &lt; Median &lt; Mode</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="mistake">Using mean when distribution is skewed → median is correct. For salary/income data, always report median.</div>
+    <div class="ml-box">Missing value imputation: mean (normal), median (skewed), mode (categorical).<br><pre><code>SimpleImputer(strategy='mean')      # normal features
+SimpleImputer(strategy='median')    # skewed features  
+SimpleImputer(strategy='most_frequent')  # categorical</code></pre></div>
+
+    <details class="collapsible">
+      <summary>Quick Recall (5 questions)</summary>
+      <div class="collapsible-body">
+        <div class="recall-box recall">
+          <h4>🔁 Quick Recall</h4>
+          <ol>
+            <li>What is the mean of [3, 7, 7, 19]?</li>
+            <li>What is the median of [1, 3, 3, 6, 7, 8, 9]?</li>
+            <li>What is the mode of [1, 1, 2, 3, 3, 3, 4]?</li>
+            <li>Which measure is robust to outliers?</li>
+            <li>If data is right-skewed, which is larger: mean or median?</li>
+          </ol>
+        </div>
+        <div class="recall-box exam">
+          <h4>📝 Exam Problems</h4>
+          <ol>
+            <li>Find mean, median, mode of: [4, 7, 13, 2, 1, 7, 7, 4, 2, 1]</li>
+            <li>A dataset has mean=50 and median=35. What does this say about the distribution?</li>
+            <li>10 employees earn ₹30k, 1 CEO earns ₹50 lakh. Which central tendency should a journalist report and why?</li>
+          </ol>
+        </div>
+      </div>
+    </details>
+
+    <div class="summary-box">
+      <h4>📌 Ultra-Compact Summary</h4>
+      <ul>
+        <li>Mean = Σx/n; pulled by outliers</li>
+        <li>Median = middle after sorting; robust</li>
+        <li>Mode = most frequent; for categorical</li>
+        <li>Right skew → Mean &gt; Median &gt; Mode</li>
+        <li>Left skew → Mean &lt; Median &lt; Mode</li>
+        <li>Use median for real-world salary/income data</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- TOPIC 6 -->
+  <div class="topic" id="t6">
+    <div class="topic-header">
+      <span class="topic-num">T-06</span>
+      <h2>Measure of Spread (Dispersion)</h2>
+    </div>
+    <div class="intuition">Central tendency tells you WHERE data is. Spread tells you HOW SCATTERED it is around that center.</div>
+
+    <div class="sub">
+      <h3>Range</h3>
+      <div class="formula-box">$$\text{Range} = x_{max} - x_{min}$$</div>
+      <p>Simple but fragile — one outlier destroys it completely.</p>
+    </div>
+
+    <div class="sub">
+      <h3>Variance</h3>
+      <div class="formula-box">
+        $$\text{Population: } \sigma^2 = \frac{\sum(x_i - \mu)^2}{N} \qquad \text{Sample: } s^2 = \frac{\sum(x_i - \bar{x})^2}{n-1}$$
+      </div>
+      <p><strong>Why square?</strong> Prevents negative deviations from canceling positives. <strong>Why n-1 for sample?</strong> Bessel's correction — gives unbiased estimate of population variance.</p>
+    </div>
+
+    <div class="sub">
+      <h3>Standard Deviation</h3>
+      <div class="formula-box">$$\sigma = \sqrt{\sigma^2}$$</div>
+      <p>Average distance from the mean, in original units. This is what you report.</p>
+      <p><strong>Example:</strong> Data = [2,4,4,4,5,5,7,9], Mean = 5 → SD = <strong>2</strong></p>
+    </div>
+
+    <div class="sub">
+      <h3>IQR (Interquartile Range)</h3>
+      <div class="formula-box">$$\text{IQR} = Q3 - Q1$$</div>
+      <p>Spread of the middle 50% of data. <strong>Robust to outliers.</strong></p>
+      <p>Example: Q1=15, Q3=46 → IQR = 46 − 15 = <strong>31</strong></p>
+    </div>
+
+    <div class="sub">
+      <h3>Comparison</h3>
+      <table>
+        <thead><tr><th>Metric</th><th>Formula</th><th>Robust?</th><th>Unit</th></tr></thead>
+        <tbody>
+          <tr><td>Range</td><td>max − min</td><td>NO</td><td>Same as data</td></tr>
+          <tr><td>Variance</td><td>Σ(x−x̄)²/n</td><td>NO</td><td>Squared ⚠️</td></tr>
+          <tr><td>Std Dev</td><td>√Variance</td><td>NO</td><td>Same as data</td></tr>
+          <tr><td>IQR</td><td>Q3 − Q1</td><td>YES ✓</td><td>Same as data</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="mistake">Population uses N, sample uses n-1. Variance units are SQUARED — always report SD, not variance.</div>
+    <div class="ml-box">StandardScaler uses mean + SD. RobustScaler uses IQR — better for outlier-heavy data.<br><pre><code>from sklearn.preprocessing import RobustScaler  # IQR-based</code></pre></div>
+
+    <div class="summary-box">
+      <h4>📌 Ultra-Compact Summary</h4>
+      <ul>
+        <li>SD = √Variance; same units as data; use for reporting</li>
+        <li>IQR = Q3 − Q1; robust; use when outliers present</li>
+        <li>Sample variance → n-1 (Bessel's correction)</li>
+        <li>Box plot = min, Q1, median, Q3, max (5-number summary)</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- TOPIC 7 -->
+  <div class="topic" id="t7">
+    <div class="topic-header">
+      <span class="topic-num">T-07</span>
+      <h2>Outliers</h2>
+    </div>
+    <div class="intuition">A data point so far from the rest that it's probably noise, error, or a genuinely rare event. You need a systematic fence to find it.</div>
+
+    <div class="sub">
+      <h3>IQR Fence Method (Tukey's)</h3>
+      <div class="formula-box">
+        $$\text{Upper Fence} = Q3 + 1.5 \times IQR \qquad \text{Lower Fence} = Q1 - 1.5 \times IQR$$
+      </div>
+      <p>Any point outside these fences = <strong>outlier</strong>.</p>
+    </div>
+
+    <div class="sub">
+      <h3>Step-by-Step Example</h3>
+      <p>Data: [1,1,2,2,3,4,5,5,6,6,7,8,9,9,10,10,11,13,13,14,15,<strong>101</strong>]</p>
+      <table>
+        <thead><tr><th>Step</th><th>Calculation</th><th>Result</th></tr></thead>
+        <tbody>
+          <tr><td>1. Find Q1, Q3</td><td>Lower half median, upper half median</td><td>Q1=5, Q3=11.5</td></tr>
+          <tr><td>2. IQR</td><td>11.5 − 5</td><td>IQR = 6.5</td></tr>
+          <tr><td>3. Upper Fence</td><td>11.5 + 1.5×6.5</td><td>21.25</td></tr>
+          <tr><td>4. Lower Fence</td><td>5 − 1.5×6.5</td><td>−4.75</td></tr>
+          <tr><td>5. Flag outliers</td><td>101 &gt; 21.25</td><td>101 is OUTLIER ✗</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="mistake">Outliers ≠ always errors. In fraud detection, the outliers ARE the signal. Never blindly delete — investigate first.</div>
+    <div class="ml-box">Tree models (XGBoost, RF) → robust to outliers. Linear regression, KNN, SVM → sensitive. Use RobustScaler or remove.</div>
+
+    <details class="collapsible">
+      <summary>Exam Problems</summary>
+      <div class="collapsible-body">
+        <div class="recall-box exam">
+          <h4>📝 Exam Problems</h4>
+          <ol>
+            <li>Dataset: [5,6,7,8,9,100]. Find IQR and identify outliers using the fence method.</li>
+            <li>Two datasets: same mean=50. Dataset A: SD=2, Dataset B: SD=20. What does this tell you?</li>
+            <li>A model trained on salary data keeps overfitting due to outliers. Which preprocessing do you apply?</li>
+          </ol>
+        </div>
+      </div>
+    </details>
+  </div>
+
+  <hr class="divider">
+
+  <!-- TOPIC 8 -->
+  <div class="topic" id="t8">
+    <div class="topic-header">
+      <span class="topic-num">T-08</span>
+      <h2>Z-Score (Standard Score)</h2>
+    </div>
+    <div class="intuition">How many standard deviations away from the mean is this point? Converts any value to a universal comparable scale.</div>
+
+    <div class="sub">
+      <h3>Formula</h3>
+      <div class="formula-box">$$z = \frac{x - \mu}{\sigma}$$</div>
+    </div>
+
+    <div class="sub">
+      <h3>Interpretation</h3>
+      <table>
+        <thead><tr><th>Z Value</th><th>Meaning</th></tr></thead>
+        <tbody>
+          <tr><td>z = 0</td><td>Value IS the mean</td></tr>
+          <tr><td>z = +1</td><td>1 SD above mean (right side)</td></tr>
+          <tr><td>z = −1</td><td>1 SD below mean (left side)</td></tr>
+          <tr><td>|z| &gt; 3</td><td>Potential outlier</td></tr>
+          <tr><td>After z-scoring</td><td>Mean=0, SD=1</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="sub">
+      <h3>Solved Example</h3>
+      <p>μ = 8, σ = 1. How far is x = 9.5 from the mean?</p>
+      <div class="formula-box">$$z = \frac{9.5 - 8}{1} = 1.5 \quad \Rightarrow \text{9.5 is 1.5 SDs above the mean}$$</div>
+      <p>For x = 6.5: z = (6.5−8)/1 = <strong>−1.5</strong> → 1.5 SDs below the mean.</p>
+    </div>
+
+    <div class="mistake">Z-score ≠ normalization to [0,1]. For [0,1] → use Min-Max scaling. Z-score assumes roughly normal data for percentile interpretation.</div>
+    <div class="ml-box"><code>StandardScaler</code> in sklearn applies z-score to every feature. Required before: Linear Regression, Logistic Regression, SVM, KNN, PCA.<br><pre><code>from sklearn.preprocessing import StandardScaler
+# z = (x - mean) / std</code></pre></div>
+  </div>
+
+  <!-- TOPIC 9 -->
+  <div class="topic" id="t9">
+    <div class="topic-header">
+      <span class="topic-num">T-09</span>
+      <h2>Normal Distribution & Density Curve</h2>
+    </div>
+    <div class="intuition">Smooth out a histogram infinitely → density curve. When bell-shaped and symmetric → Normal Distribution. Most important distribution in statistics.</div>
+
+    <div class="sub">
+      <h3>PDF Formula</h3>
+      <div class="formula-box">$$f(x) = \frac{1}{\sigma\sqrt{2\pi}} \, e^{-\frac{1}{2}\left(\frac{x-\mu}{\sigma}\right)^2}$$</div>
+    </div>
+
+    <div class="sub">
+      <h3>Empirical Rule (68-95-99.7)</h3>
+      <table>
+        <thead><tr><th>Range</th><th>% of Data</th></tr></thead>
+        <tbody>
+          <tr><td>μ ± 1σ</td><td><strong>68%</strong></td></tr>
+          <tr><td>μ ± 2σ</td><td><strong>95%</strong></td></tr>
+          <tr><td>μ ± 3σ</td><td><strong>99.7%</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="sub">
+      <h3>Key Properties</h3>
+      <ul style="padding-left:18px; font-size:14px; line-height:2;">
+        <li>Mean = Median = Mode (perfectly symmetric)</li>
+        <li>Total area under curve = 1</li>
+        <li>Defined entirely by μ and σ</li>
+        <li>Asymptotically approaches 0 (never touches x-axis)</li>
+      </ul>
+    </div>
+
+    <div class="sub">
+      <h3>Distribution Shapes</h3>
+      <table>
+        <thead><tr><th>Shape</th><th>Mean vs Median</th><th>Tail Direction</th></tr></thead>
+        <tbody>
+          <tr><td>Symmetric (Normal)</td><td>Mean = Median</td><td>Both equal</td></tr>
+          <tr><td>Right Skewed (+)</td><td>Mean &gt; Median</td><td>Right</td></tr>
+          <tr><td>Left Skewed (−)</td><td>Mean &lt; Median</td><td>Left</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="mistake">Normal ≠ all real data. Y-axis of density curve is density, NOT probability. Density at a point can exceed 1.</div>
+    <div class="ml-box">Central Limit Theorem: sample means → approximately normal regardless of population distribution. Naive Bayes assumes normal features.</div>
+
+    <details class="collapsible">
+      <summary>Quick Recall + Exam Problems</summary>
+      <div class="collapsible-body">
+        <div class="recall-box recall">
+          <h4>🔁 Quick Recall</h4>
+          <ol>
+            <li>What % of data lies within ±2σ in a normal distribution?</li>
+            <li>If z = −2.5, is the point above or below the mean?</li>
+            <li>What is the shape of a normal distribution?</li>
+            <li>What are the two parameters of a normal distribution?</li>
+            <li>Formula for z-score?</li>
+          </ol>
+        </div>
+        <div class="recall-box exam">
+          <h4>📝 Exam Problems</h4>
+          <ol>
+            <li>Heights: μ=170cm, σ=10cm. What % of people are between 160cm and 190cm?</li>
+            <li>μ=100, σ=15. Find z-score for x=130. Is it an outlier?</li>
+            <li>A feature has mean=500, σ=50. After StandardScaler, what is the new mean and SD?</li>
+          </ol>
+        </div>
+      </div>
+    </details>
+
+    <div class="summary-box">
+      <h4>📌 Ultra-Compact Summary</h4>
+      <ul>
+        <li>Z = (x−μ)/σ; positive = right, negative = left</li>
+        <li>Normal: bell-shaped, symmetric, mean=median=mode</li>
+        <li>68-95-99.7 rule for ±1σ, ±2σ, ±3σ</li>
+        <li>|z| &gt; 3 → potential outlier</li>
+        <li>StandardScaler = z-score transformation</li>
+      </ul>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- TOPIC 10 -->
+  <div class="topic" id="t10">
+    <div class="topic-header">
+      <span class="topic-num">T-10</span>
+      <h2>Covariance</h2>
+    </div>
+    <div class="intuition">Tells you the direction of the relationship between two variables (positive or negative), but the magnitude is uninterpretable without knowing the units.</div>
+
+    <div class="sub">
+      <h3>Formula</h3>
+      <div class="formula-box">$$\text{Cov}(X, Y) = \frac{\sum_{i=1}^{n}(x_i - \bar{x})(y_i - \bar{y})}{n-1}$$</div>
+    </div>
+
+    <div class="sub">
+      <h3>Interpretation</h3>
+      <table>
+        <thead><tr><th>Cov Value</th><th>Meaning</th></tr></thead>
+        <tbody>
+          <tr><td>&gt; 0</td><td>X and Y move in the same direction</td></tr>
+          <tr><td>&lt; 0</td><td>X and Y move in opposite directions</td></tr>
+          <tr><td>= 0</td><td>No linear relationship</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="mistake">Large |Cov| does NOT mean strong relationship — could just be large-scale units. Cov = 0 does NOT mean independent (only no linear relationship).</div>
+    <div class="ml-box">Covariance matrix is the foundation of PCA. Highly covariant features = redundant.<br><pre><code>np.cov(X, Y)  # 2x2 covariance matrix</code></pre></div>
+  </div>
+
+  <!-- TOPIC 11 -->
+  <div class="topic" id="t11">
+    <div class="topic-header">
+      <span class="topic-num">T-11</span>
+      <h2>Correlation</h2>
+    </div>
+    <div class="intuition">Normalized covariance. Fixes the units problem. Always in [−1, +1]. Tells you BOTH strength and direction of linear relationship.</div>
+
+    <div class="sub">
+      <h3>Pearson Correlation Formula</h3>
+      <div class="formula-box">$$r = \frac{\text{Cov}(X,Y)}{\sigma_X \cdot \sigma_Y}$$</div>
+    </div>
+
+    <div class="sub">
+      <h3>Interpretation Scale</h3>
+      <table>
+        <thead><tr><th>r Value</th><th>Relationship</th></tr></thead>
+        <tbody>
+          <tr><td>+1.0</td><td>Perfect positive linear</td></tr>
+          <tr><td>+0.7 to +0.99</td><td>Strong positive</td></tr>
+          <tr><td>+0.3 to +0.69</td><td>Moderate positive</td></tr>
+          <tr><td>0 to ±0.29</td><td>Weak / no linear</td></tr>
+          <tr><td>−0.7 to −0.99</td><td>Strong negative</td></tr>
+          <tr><td>−1.0</td><td>Perfect negative linear</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="sub">
+      <h3>Covariance vs Correlation</h3>
+      <table>
+        <thead><tr><th>Feature</th><th>Covariance</th><th>Correlation</th></tr></thead>
+        <tbody>
+          <tr><td>Range</td><td>−∞ to +∞</td><td>−1 to +1</td></tr>
+          <tr><td>Unit-dependent?</td><td>YES</td><td>NO</td></tr>
+          <tr><td>Tells strength?</td><td>NO</td><td>YES</td></tr>
+          <tr><td>Tells direction?</td><td>YES</td><td>YES</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="mistake"><strong>Correlation ≠ Causation.</strong> Ice cream sales and drowning rates are correlated (both rise in summer). Neither causes the other. Pearson r = 0 does NOT mean no relationship — only no linear relationship.</div>
+    <div class="ml-box">Feature selection: drop features where |r| &gt; 0.9 (multicollinearity in linear models).<br><pre><code>df.corr()                           # Pearson matrix
+sns.heatmap(df.corr(), annot=True)  # Heatmap</code></pre></div>
+
+    <details class="collapsible">
+      <summary>Exam Problems</summary>
+      <div class="collapsible-body">
+        <div class="recall-box exam">
+          <h4>📝 Exam Problems</h4>
+          <ol>
+            <li>X=[1,2,3,4,5], Y=[2,4,5,4,5]. Compute Cov(X,Y) and r.</li>
+            <li>Feature A and Feature B have r=0.97. What should you do in a linear regression model?</li>
+            <li>A newspaper says "ice cream sales and drowning rates have r=+0.85, so ice cream causes drowning." What's wrong?</li>
+          </ol>
+        </div>
+      </div>
+    </details>
+
+    <div class="summary-box">
+      <h4>📌 Ultra-Compact Summary</h4>
+      <ul>
+        <li>r = Cov/(σ_x·σ_y); range [−1, +1]</li>
+        <li>|r| &gt; 0.7 = strong; |r| &lt; 0.3 = weak</li>
+        <li>Correlation ≠ Causation (never forget this)</li>
+        <li>Pearson = linear only; Spearman = rank/monotonic</li>
+        <li>Covariance matrix → PCA for dimensionality reduction</li>
+      </ul>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- TOPIC 12 -->
+  <div class="topic" id="t12">
+    <div class="topic-header">
+      <span class="topic-num">T-12</span>
+      <h2>Probability Basics</h2>
+    </div>
+    <div class="intuition">Probability = fraction of times an event occurs over infinite trials. Measures uncertainty.</div>
+
+    <div class="sub">
+      <h3>Core Definition</h3>
+      <div class="formula-box">$$P(A) = \frac{\text{favorable outcomes}}{\text{total outcomes}} \qquad 0 \leq P(A) \leq 1 \qquad P(S) = 1$$</div>
+    </div>
+
+    <div class="sub">
+      <h3>Key Rules</h3>
+      <table>
+        <thead><tr><th>Rule</th><th>Formula</th></tr></thead>
+        <tbody>
+          <tr><td>Complement</td><td>\(P(A') = 1 - P(A)\)</td></tr>
+          <tr><td>Addition (mutually exclusive)</td><td>\(P(A \cup B) = P(A) + P(B)\)</td></tr>
+          <tr><td>Addition (general)</td><td>\(P(A \cup B) = P(A) + P(B) - P(A \cap B)\)</td></tr>
+          <tr><td>Multiplication (independent)</td><td>\(P(A \cap B) = P(A) \times P(B)\)</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="sub">
+      <h3>Event Types</h3>
+      <table>
+        <thead><tr><th>Type</th><th>Definition</th><th>Example</th></tr></thead>
+        <tbody>
+          <tr><td>Mutually Exclusive</td><td>Can't occur together</td><td>Die shows 1 AND 2 simultaneously</td></tr>
+          <tr><td>Independent</td><td>One doesn't affect the other</td><td>Two coin flips</td></tr>
+          <tr><td>Dependent</td><td>One affects the other</td><td>Drawing cards without replacement</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="mistake">Mutually exclusive ≠ independent — completely different concepts. P(A∩B) = P(A)×P(B) ONLY if A and B are independent.</div>
+  </div>
+
+  <!-- TOPIC 13 -->
+  <div class="topic" id="t13">
+    <div class="topic-header">
+      <span class="topic-num">T-13</span>
+      <h2>Conditional Probability & Bayes' Theorem</h2>
+    </div>
+    <div class="intuition">Given that B already happened — what's the probability of A? Bayes flips this using prior knowledge to update beliefs.</div>
+
+    <div class="sub">
+      <h3>Conditional Probability</h3>
+      <div class="formula-box">$$P(A|B) = \frac{P(A \cap B)}{P(B)}$$</div>
+    </div>
+
+    <div class="sub">
+      <h3>Bayes' Theorem</h3>
+      <div class="formula-box">$$P(A|B) = \frac{P(B|A) \cdot P(A)}{P(B)}$$</div>
+      <table>
+        <thead><tr><th>Term</th><th>Name</th><th>Meaning</th></tr></thead>
+        <tbody>
+          <tr><td>P(A)</td><td>Prior</td><td>Belief about A before seeing evidence</td></tr>
+          <tr><td>P(B|A)</td><td>Likelihood</td><td>Probability of evidence given A is true</td></tr>
+          <tr><td>P(A|B)</td><td>Posterior</td><td>Updated belief after seeing evidence B</td></tr>
+          <tr><td>P(B)</td><td>Marginal</td><td>Normalizing constant</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="sub">
+      <h3>Solved Example (from notes)</h3>
+      <p>A = Person has Corona, B = Person was in contact with someone who has Corona</p>
+      <p>P(Corona) = 0.01, P(Contact|Corona) = 0.9, P(Contact) = 0.05</p>
+      <div class="formula-box">$$P(\text{Corona}|\text{Contact}) = \frac{0.9 \times 0.01}{0.05} = \frac{0.009}{0.05} = 0.18$$</div>
+      <p>Only 18% chance of having corona even after contact — because base rate P(Corona) = 0.01 is very low. <strong>This is the base rate fallacy in action.</strong></p>
+    </div>
+
+    <div class="mistake">P(A|B) ≠ P(B|A). Never confuse them. Ignoring the prior P(A) = base rate fallacy. This is one of the most common real-world statistical errors.</div>
+    <div class="ml-box">Naive Bayes classifier = direct application. Spam detection, medical diagnosis, text classification.<br><pre><code>from sklearn.naive_bayes import GaussianNB</code></pre></div>
+
+    <details class="collapsible">
+      <summary>Quick Recall + Exam Problems</summary>
+      <div class="collapsible-body">
+        <div class="recall-box recall">
+          <h4>🔁 Quick Recall</h4>
+          <ol>
+            <li>P(A') = ?</li>
+            <li>P(A∪B) general formula?</li>
+            <li>When is P(A∩B) = P(A)×P(B) valid?</li>
+            <li>Bayes' theorem formula?</li>
+            <li>What is a "prior" probability?</li>
+          </ol>
+        </div>
+        <div class="recall-box exam">
+          <h4>📝 Exam Problems</h4>
+          <ol>
+            <li>P(A)=0.4, P(B)=0.3, P(A∩B)=0.12. Are A and B independent? Prove.</li>
+            <li>Medical test: sensitivity P(+|Disease)=0.95, specificity P(-|No Disease)=0.90, P(Disease)=0.01. Find P(Disease|+).</li>
+            <li>A coin shows heads 3 times in a row. P(heads on 4th flip)? Explain using independence.</li>
+          </ol>
+        </div>
+      </div>
+    </details>
+
+    <div class="summary-box">
+      <h4>📌 Ultra-Compact Summary</h4>
+      <ul>
+        <li>P(A|B) = P(A∩B)/P(B) — conditional probability</li>
+        <li>Independent: P(A∩B) = P(A)×P(B)</li>
+        <li>Bayes: P(A|B) = P(B|A)×P(A) / P(B)</li>
+        <li>Prior × Likelihood / Evidence = Posterior</li>
+        <li>Naive Bayes assumes feature independence</li>
+      </ul>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- TOPIC 14 -->
+  <div class="topic" id="t14">
+    <div class="topic-header">
+      <span class="topic-num">T-14</span>
+      <h2>Descriptive vs Inferential Statistics</h2>
+    </div>
+    <div class="intuition">Descriptive = summarize what you HAVE. Inferential = conclude about what you DON'T HAVE (the population) from a sample.</div>
+
+    <table>
+      <thead><tr><th>Dimension</th><th>Descriptive</th><th>Inferential</th></tr></thead>
+      <tbody>
+        <tr><td>Purpose</td><td>Summarize & describe</td><td>Make predictions / draw conclusions</td></tr>
+        <tr><td>Works with</td><td>Actual collected data</td><td>Goes beyond data → population</td></tr>
+        <tr><td>Question</td><td>"What does the data say?"</td><td>"What can we infer about the population?"</td></tr>
+        <tr><td>Examples</td><td>Mean, Median, SD, Graphs</td><td>Hypothesis Testing, CI, p-values, t-tests</td></tr>
+        <tr><td>Certainty</td><td>Exact (computed)</td><td>Probabilistic (with error margin)</td></tr>
+      </tbody>
+    </table>
+
+    <div class="mistake">Reporting a sample mean as if it's the population truth = classic descriptive→inferential error. Larger sample ≠ better if it's biased.</div>
+    <div class="ml-box">EDA = Descriptive statistics. A/B testing, model evaluation = Inferential statistics.</div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- TOPIC 15 -->
+  <div class="topic" id="t15">
+    <div class="topic-header">
+      <span class="topic-num">T-15</span>
+      <h2>Hypothesis Testing</h2>
+    </div>
+    <div class="intuition">You have a claim. You collect data. Hypothesis testing is the formal process to decide: is your data strong enough evidence to reject the claim?</div>
+
+    <div class="sub">
+      <h3>Core Framework</h3>
+      <table>
+        <thead><tr><th>Term</th><th>Definition</th></tr></thead>
+        <tbody>
+          <tr><td>H₀ (Null)</td><td>Default assumption — no effect, no difference, status quo</td></tr>
+          <tr><td>H₁ (Alternative)</td><td>What you're trying to prove</td></tr>
+          <tr><td>p-value</td><td>P(observed data or more extreme | H₀ is true)</td></tr>
+          <tr><td>α (significance level)</td><td>Threshold for rejection, usually 0.05</td></tr>
+        </tbody>
+      </table>
+      <div class="formula-box">
+        $$p < \alpha \Rightarrow \text{Reject } H_0 \qquad p \geq \alpha \Rightarrow \text{Fail to Reject } H_0$$
+      </div>
+    </div>
+
+    <div class="sub">
+      <h3>6-Step Process</h3>
+      <ol style="padding-left:18px; font-size:14px; line-height:2.2;">
+        <li>State H₀ and H₁</li>
+        <li>Choose α (usually 0.05)</li>
+        <li>Collect sample data</li>
+        <li>Compute test statistic (t, z, χ², etc.)</li>
+        <li>Find p-value</li>
+        <li>Decision: p &lt; α → Reject H₀; else Fail to Reject</li>
+      </ol>
+    </div>
+
+    <div class="sub">
+      <h3>One-Tailed vs Two-Tailed</h3>
+      <table>
+        <thead><tr><th>Type</th><th>When to Use</th><th>H₁ Form</th></tr></thead>
+        <tbody>
+          <tr><td>Right-tailed</td><td>Testing if parameter &gt; value</td><td>H₁: μ &gt; μ₀</td></tr>
+          <tr><td>Left-tailed</td><td>Testing if parameter &lt; value</td><td>H₁: μ &lt; μ₀</td></tr>
+          <tr><td>Two-tailed</td><td>Testing if parameter ≠ value</td><td>H₁: μ ≠ μ₀</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="mistake">"Fail to Reject H₀" ≠ "H₀ is true." Absence of evidence ≠ evidence of absence. p-value is NOT P(H₀ is true). Low p-value = statistically significant, NOT necessarily practically significant.</div>
+    <div class="ml-box">A/B testing for model/feature comparison. Feature significance in regression. Checking if model improvement is real or random noise.</div>
+  </div>
+
+  <!-- TOPIC 16 -->
+  <div class="topic" id="t16">
+    <div class="topic-header">
+      <span class="topic-num">T-16</span>
+      <h2>T-Test</h2>
+    </div>
+    <div class="intuition">When you don't know population σ, estimate it from sample (s). The t-test accounts for this extra uncertainty — especially critical with small samples.</div>
+
+    <div class="sub">
+      <h3>One-Sample T-Test Formula</h3>
+      <div class="formula-box">$$t = \frac{\bar{x} - \mu}{s / \sqrt{n}} \qquad \text{df} = n - 1$$</div>
+    </div>
+
+    <div class="sub">
+      <h3>Types of T-Tests</h3>
+      <table>
+        <thead><tr><th>Type</th><th>Compares</th><th>Example</th></tr></thead>
+        <tbody>
+          <tr><td>One-sample</td><td>Sample mean vs known value</td><td>Is avg score different from 70?</td></tr>
+          <tr><td>Two-sample (independent)</td><td>Two different group means</td><td>Drug A vs Drug B</td></tr>
+          <tr><td>Paired</td><td>Same subjects, two conditions</td><td>Before vs after treatment</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="sub">
+      <h3>Solved Example</h3>
+      <p>x̄=75, μ=70, s=10, n=30</p>
+      <div class="formula-box">$$t = \frac{75 - 70}{10/\sqrt{30}} = \frac{5}{1.826} = 2.74$$</div>
+      <p>Critical value (df=29, α=0.05, one-tailed) ≈ 1.699. Since 2.74 &gt; 1.699 → <strong>Reject H₀</strong>. App users do score significantly more than 70.</p>
+    </div>
+
+    <div class="sub">
+      <h3>T-Test vs Z-Test</h3>
+      <table>
+        <thead><tr><th></th><th>T-Test</th><th>Z-Test</th></tr></thead>
+        <tbody>
+          <tr><td>Use when</td><td>n &lt; 30 or σ unknown</td><td>n ≥ 30 and σ known</td></tr>
+          <tr><td>Distribution</td><td>t-distribution</td><td>Normal distribution</td></tr>
+          <tr><td>Shape</td><td>Heavier tails (more uncertainty)</td><td>Normal bell curve</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="mistake">With tiny n (e.g., n=5), verify normality assumption first (Shapiro-Wilk test). Always state degrees of freedom. Two-sample t-test requires checking for equal variance assumption.</div>
+    <div class="ml-box">Testing if model accuracy improvement is statistically real or random.<br><pre><code>from scipy import stats
+t_stat, p_value = stats.ttest_1samp(sample_data, popmean=70)
+if p_value &lt; 0.05:
+    print("Reject H0 — significant result")</code></pre></div>
+
+    <details class="collapsible">
+      <summary>Quick Recall + Exam Problems</summary>
+      <div class="collapsible-body">
+        <div class="recall-box recall">
+          <h4>🔁 Quick Recall</h4>
+          <ol>
+            <li>What is H₀?</li>
+            <li>If p-value = 0.03 and α = 0.05, what do you decide?</li>
+            <li>T-test formula?</li>
+            <li>Degrees of freedom for one-sample t-test?</li>
+            <li>When do you use t-test vs z-test?</li>
+          </ol>
+        </div>
+        <div class="recall-box exam">
+          <h4>📝 Exam Problems</h4>
+          <ol>
+            <li>A factory claims mean bolt diameter=10mm. Sample: n=25, x̄=10.3mm, s=0.5mm, α=0.05. Test (two-tailed).</li>
+            <li>Why do we use t-distribution instead of z when n=15 and σ is unknown?</li>
+            <li>Model A accuracy=87%, Model B=89%, both on n=100 tests. Is this difference statistically significant? What test would you run?</li>
+          </ol>
+        </div>
+      </div>
+    </details>
+
+    <div class="summary-box">
+      <h4>📌 Ultra-Compact Summary</h4>
+      <ul>
+        <li>H₀ = null (no effect); H₁ = alternative (your claim)</li>
+        <li>p &lt; α → Reject H₀; p ≥ α → Fail to Reject</li>
+        <li>t = (x̄ − μ) / (s/√n); df = n−1</li>
+        <li>T-test: unknown σ or small n; Z-test: known σ, large n</li>
+        <li>p-value = P(data | H₀), NOT P(H₀ | data)</li>
+        <li>One-tailed = directional (&gt;, &lt;); two-tailed = any difference (≠)</li>
+      </ul>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- FORMULA SHEET -->
+  <div class="topic" id="formulas">
+    <div class="topic-header">
+      <span class="topic-num">★</span>
+      <h2>Master Formula Sheet</h2>
+    </div>
+    <div class="master-sheet">
+      <table>
+        <thead><tr><th>Concept</th><th>Formula</th></tr></thead>
+        <tbody>
+          <tr><td>Mean</td><td>\(\bar{x} = \Sigma x / n\)</td></tr>
+          <tr><td>Sample Variance</td><td>\(s^2 = \Sigma(x - \bar{x})^2 / (n-1)\)</td></tr>
+          <tr><td>Population SD</td><td>\(\sigma = \sqrt{\Sigma(x - \mu)^2 / N}\)</td></tr>
+          <tr><td>IQR</td><td>\(Q3 - Q1\)</td></tr>
+          <tr><td>Outlier Fences</td><td>\(Q1 - 1.5 \times IQR \quad \text{to} \quad Q3 + 1.5 \times IQR\)</td></tr>
+          <tr><td>Z-Score</td><td>\(z = (x - \mu) / \sigma\)</td></tr>
+          <tr><td>Pie Angle</td><td>\((f/n) \times 360°\)</td></tr>
+          <tr><td>Covariance</td><td>\(\text{Cov}(X,Y) = \Sigma(x_i - \bar{x})(y_i - \bar{y}) / (n-1)\)</td></tr>
+          <tr><td>Correlation</td><td>\(r = \text{Cov}(X,Y) / (\sigma_X \cdot \sigma_Y)\)</td></tr>
+          <tr><td>Conditional Prob.</td><td>\(P(A|B) = P(A \cap B) / P(B)\)</td></tr>
+          <tr><td>Bayes' Theorem</td><td>\(P(A|B) = P(B|A) \cdot P(A) / P(B)\)</td></tr>
+          <tr><td>T-Statistic</td><td>\(t = (\bar{x} - \mu) / (s / \sqrt{n})\)</td></tr>
+          <tr><td>Normal PDF</td><td>\(f(x) = \frac{1}{\sigma\sqrt{2\pi}} e^{-\frac{1}{2}\left(\frac{x-\mu}{\sigma}\right)^2}\)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</main>
+
+<script>
+  // Progress bar
+  window.addEventListener('scroll', () => {
+    const scrollTop = document.documentElement.scrollTop;
+    const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
+    const progress = (scrollTop / scrollHeight) * 100;
+    document.getElementById('progress-bar').style.width = progress + '%';
+  });
+
+  // Sidebar active link
+  const sections = document.querySelectorAll('[id]');
+  const navLinks = document.querySelectorAll('#sidebar a');
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        navLinks.forEach(link => link.classList.remove('active'));
+        const activeLink = document.querySelector(`#sidebar a[href="#${entry.target.id}"]`);
+        if (activeLink) activeLink.classList.add('active');
+      }
+    });
+  }, { threshold: 0.3 });
+
+  sections.forEach(s => observer.observe(s));
+</script>
+</body>
+</html>
