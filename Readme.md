@@ -6,22 +6,37 @@ Built for students who want to understand concepts deeply instead of memorizing 
 
 ---
 
-## Live Study System
+# Live Study Systems
 
-### Statistics Study System
+## Statistics Study System
 
-🔗 **Open Here:**
+🔗 Open Here:
 https://bhaskar21-7.github.io/machine-learning-study-system/Statistics/Statistics_Study_System.html
 
 ---
 
-## Preview
+## Machine Learning Part 1 Study System
+
+🔗 Open Here:
+https://bhaskar21-7.github.io/machine-learning-study-system/ML/ML_Part1_Study_System.html
+
+---
+
+# Preview
+
+## Statistics Study System
 
 ![Statistics Study System](Statistics/Demo%20for%20Statistics%20notes.png)
 
 ---
 
-## About This Repository
+## Machine Learning Part 1
+
+![Machine Learning Part 1](ML/Demo%20for%20Part%201%20ML%20notes.png)
+
+---
+
+# About This Repository
 
 This repository contains structured study material focused on:
 
@@ -43,9 +58,9 @@ The goal is to make difficult concepts:
 
 ---
 
-## Currently Available
+# Currently Available
 
-### Statistics Study System
+## Statistics Study System
 
 Topics currently covered:
 
@@ -64,39 +79,29 @@ Topics currently covered:
 * Hypothesis Testing
 * T-Test
 
-The notes include:
-
-* intuitive explanations,
-* visual formatting,
-* formula summaries,
-* solved examples,
-* ML/Data Science relevance,
-* and revision-focused structure.
-
 ---
 
-## Upcoming Content
+## Machine Learning Part 1
 
-Future additions will include:
+Topics currently covered:
 
-* Machine Learning Part 1
+* Artificial Intelligence
+* Machine Learning
+* Deep Learning
+* Types of Machine Learning
 * Supervised Learning
 * Unsupervised Learning
+* Reinforcement Learning
+* Training vs Testing
+* Machine Learning Workflow
+* EDA Basics
+* Data Preprocessing
 * Feature Engineering
 * Feature Selection
-* Regression Algorithms
-* Classification Algorithms
-* Model Evaluation
-* Deep Learning Fundamentals
-* Statistics for Data Science
-* Interview Questions
-* Visual Cheat Sheets
-
-This repository will continue evolving over time.
 
 ---
 
-## Features
+# Features
 
 * Interactive HTML study systems
 * Dark-themed visual notes
@@ -106,30 +111,32 @@ This repository will continue evolving over time.
 * Exam + interview-oriented explanations
 * Statistics and ML integration
 * Beginner-friendly learning flow
+* ML/Data Science relevance
+* Visual learning approach
 
 ---
 
-## Repository Structure
+# Repository Structure
 
-```bash id="cjlwmr"
+```bash id="8q3kho"
 machine-learning-study-system/
 │
 ├── Statistics/
 │   ├── Statistics_Study_System.html
 │   └── Demo for Statistics notes.png
 │
-├── Machine-Learning/
-│
-├── Visual-Notes/
+├── ML/
+│   ├── ML_Part1_Study_System.html
+│   └── Demo for Part 1 ML notes.png
 │
 ├── Cheat-Sheets/
-│
+├── Visual-Notes/
 └── Resources/
 ```
 
 ---
 
-## Why This Repository Exists
+# Why This Repository Exists
 
 Most study material online is either:
 
@@ -147,7 +154,26 @@ This project focuses on creating:
 
 ---
 
-## Contributions
+# Upcoming Content
+
+Future additions may include:
+
+* Regression Algorithms
+* Classification Algorithms
+* Model Evaluation
+* Deep Learning Fundamentals
+* Statistics for Data Science
+* Probability Distributions
+* Sampling Theory
+* Interview Questions
+* Visual Cheat Sheets
+* Projects & Case Studies
+
+This repository will continue evolving over time.
+
+---
+
+# Contributions
 
 Suggestions, improvements, corrections, and pull requests are welcome.
 
@@ -162,7 +188,7 @@ feel free to contribute.
 
 ---
 
-## Support
+# Support
 
 If this repository helps you in your learning journey:
 
@@ -174,15 +200,15 @@ That support genuinely helps the project grow.
 
 ---
 
-## License
+# License
 
 This project is open-source and intended for educational purposes.
 
 ---
 
-## Author
+# Author
 
-### Bhaskar Jha
+## Bhaskar Jha
 
 Statistics student exploring:
 
