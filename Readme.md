@@ -6,6 +6,21 @@ Built for students who want to understand concepts deeply instead of memorizing 
 
 ---
 
+## Live Study System
+
+### Statistics Study System
+
+🔗 **Open Here:**
+https://bhaskar21-7.github.io/machine-learning-study-system/Statistics/Statistics_Study_System.html
+
+---
+
+## Preview
+
+![Statistics Study System](Statistics/Demo%20for%20Statistics%20notes.png)
+
+---
+
 ## About This Repository
 
 This repository contains structured study material focused on:
@@ -96,11 +111,12 @@ This repository will continue evolving over time.
 
 ## Repository Structure
 
-```bash id="uopd8m"
+```bash id="cjlwmr"
 machine-learning-study-system/
 │
 ├── Statistics/
-│   └── Statistics_Study_System.html
+│   ├── Statistics_Study_System.html
+│   └── Demo for Statistics notes.png
 │
 ├── Machine-Learning/
 │
@@ -128,14 +144,6 @@ This project focuses on creating:
 * concise but meaningful explanations,
 * visual understanding,
 * and statistics-first ML learning.
-
----
-
-## Preview
-
-Open the `.html` study systems directly in your browser for the best experience.
-
-The notes are designed to feel more like an interactive study platform than traditional static notes.
 
 ---
 
