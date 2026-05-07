@@ -1,0 +1,1525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Machine Learning — Part 1 Study System</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Syne+Mono&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap');
+
+  :root {
+    --bg: #0a0a0a;
+    --surface: #111111;
+    --surface2: #181818;
+    --surface3: #202020;
+    --border: #2a2a2a;
+    --border2: #363636;
+    --orange: #ff6b2b;
+    --orange2: #ff8c57;
+    --orange-dim: rgba(255,107,43,0.12);
+    --blue: #2b8fff;
+    --blue2: #6ab4ff;
+    --blue-dim: rgba(43,143,255,0.1);
+    --green: #2ecc71;
+    --green-dim: rgba(46,204,113,0.1);
+    --yellow: #f0c040;
+    --red: #ff4757;
+    --text: #d8d8d8;
+    --muted: #606060;
+    --heading: #f5f5f5;
+    --tag-orange: rgba(255,107,43,0.15);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 16px;
+    line-height: 1.75;
+  }
+
+  /* PROGRESS */
+  #progress { position: fixed; top: 0; left: 0; right: 0; height: 3px; z-index: 300; background: var(--border); }
+  #pbar { height: 100%; background: linear-gradient(90deg, var(--orange), var(--blue)); width: 0; transition: width 0.1s; }
+
+  /* SIDEBAR */
+  #sidebar {
+    position: fixed; left: 0; top: 0; bottom: 0; width: 265px;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    overflow-y: auto; z-index: 200;
+    display: flex; flex-direction: column;
+  }
+
+  .sb-header {
+    padding: 24px 20px 20px;
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+
+  .sb-tag {
+    font-family: 'Syne Mono', monospace;
+    font-size: 9px; letter-spacing: 0.25em; text-transform: uppercase;
+    color: var(--orange); background: var(--orange-dim);
+    border: 1px solid var(--orange);
+    padding: 3px 9px; border-radius: 2px;
+    display: inline-block; margin-bottom: 10px;
+  }
+
+  .sb-header h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 17px; font-weight: 700;
+    color: var(--heading); line-height: 1.3;
+  }
+
+  .sb-group {
+    padding: 14px 0 6px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .sb-group-label {
+    font-family: 'Syne Mono', monospace;
+    font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--muted); padding: 0 20px 6px;
+  }
+
+  #sidebar a {
+    display: flex; align-items: center; gap: 10px;
+    padding: 7px 20px;
+    color: var(--muted); text-decoration: none;
+    font-size: 13px; font-family: 'Syne Mono', monospace;
+    transition: all 0.15s;
+    border-left: 2px solid transparent;
+  }
+
+  #sidebar a .n { color: var(--orange); min-width: 20px; font-size: 10px; }
+  #sidebar a:hover, #sidebar a.active {
+    color: var(--text); background: var(--surface2);
+    border-left-color: var(--orange);
+  }
+
+  /* MAIN */
+  #main { margin-left: 265px; padding: 48px 60px; max-width: 1060px; }
+
+  /* HERO */
+  .hero {
+    padding: 52px 0 48px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 56px;
+    position: relative; overflow: hidden;
+  }
+
+  .hero::after {
+    content: 'ML';
+    position: absolute; right: -20px; top: 10px;
+    font-family: 'Syne', sans-serif; font-weight: 800;
+    font-size: 160px; color: rgba(255,107,43,0.04);
+    letter-spacing: -8px; pointer-events: none;
+    line-height: 1; user-select: none;
+  }
+
+  .hero-tags { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; }
+
+  .htag {
+    font-family: 'Syne Mono', monospace;
+    font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase;
+    padding: 5px 12px; border-radius: 2px; border: 1px solid;
+  }
+
+  .htag.o { color: var(--orange2); border-color: rgba(255,107,43,0.5); background: var(--orange-dim); }
+  .htag.b { color: var(--blue2); border-color: rgba(43,143,255,0.4); background: var(--blue-dim); }
+  .htag.g { color: var(--green); border-color: rgba(46,204,113,0.35); background: var(--green-dim); }
+
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: 52px; font-weight: 800;
+    color: var(--heading); letter-spacing: -0.03em;
+    line-height: 1.05; margin-bottom: 16px;
+  }
+
+  .hero h1 span { color: var(--orange); }
+
+  .hero-sub {
+    font-size: 15px; color: var(--muted); max-width: 560px;
+    line-height: 1.7;
+  }
+
+  .hero-stats {
+    display: flex; gap: 32px; margin-top: 28px; flex-wrap: wrap;
+  }
+
+  .stat {
+    display: flex; flex-direction: column; gap: 2px;
+  }
+
+  .stat .val {
+    font-family: 'Syne', sans-serif; font-weight: 700;
+    font-size: 22px; color: var(--orange);
+  }
+
+  .stat .lbl {
+    font-family: 'Syne Mono', monospace;
+    font-size: 9px; letter-spacing: 0.15em; text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  /* SECTION */
+  .section { margin-bottom: 72px; scroll-margin-top: 30px; }
+
+  .section-header {
+    display: flex; align-items: flex-start; gap: 18px;
+    padding-bottom: 20px; margin-bottom: 32px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .s-badge {
+    font-family: 'Syne Mono', monospace;
+    font-size: 10px; letter-spacing: 0.08em;
+    padding: 4px 10px; border-radius: 2px;
+    flex-shrink: 0; margin-top: 5px;
+  }
+
+  .s-badge.o { background: var(--orange-dim); border: 1px solid var(--orange); color: var(--orange2); }
+  .s-badge.b { background: var(--blue-dim); border: 1px solid var(--blue); color: var(--blue2); }
+  .s-badge.g { background: var(--green-dim); border: 1px solid var(--green); color: var(--green); }
+
+  .s-title h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 26px; font-weight: 700;
+    color: var(--heading); letter-spacing: -0.01em; line-height: 1.2;
+  }
+
+  .s-title .sub {
+    font-family: 'Syne Mono', monospace;
+    font-size: 11px; color: var(--muted);
+    margin-top: 4px; letter-spacing: 0.04em;
+  }
+
+  /* SUBSECTION */
+  .sub-sec { margin-bottom: 28px; }
+
+  .sub-label {
+    font-family: 'Syne Mono', monospace;
+    font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--blue2); margin-bottom: 12px;
+    display: flex; align-items: center; gap: 10px;
+  }
+
+  .sub-label::after {
+    content: ''; flex: 1; height: 1px;
+    background: linear-gradient(90deg, var(--border2), transparent);
+    max-width: 100px;
+  }
+
+  /* INTUITION */
+  .intuition {
+    background: linear-gradient(135deg, rgba(255,107,43,0.08), rgba(255,107,43,0.02));
+    border: 1px solid rgba(255,107,43,0.3);
+    border-left: 3px solid var(--orange);
+    border-radius: 4px; padding: 14px 18px;
+    margin-bottom: 20px;
+    font-style: italic; color: var(--orange2); font-size: 15px;
+  }
+
+  .intuition::before { content: '💡  '; }
+
+  /* TABLE */
+  table { width: 100%; border-collapse: collapse; margin: 14px 0; font-size: 14px; }
+  th {
+    background: var(--surface2); color: var(--blue2);
+    font-family: 'Syne Mono', monospace; font-size: 10px;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    padding: 11px 14px; text-align: left; border: 1px solid var(--border);
+  }
+  td { padding: 9px 14px; border: 1px solid var(--border); vertical-align: top; }
+  tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+  tr:hover td { background: var(--surface3); }
+
+  /* COMPARISON CARDS */
+  .compare-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 16px; margin: 14px 0;
+  }
+
+  .compare-card {
+    border: 1px solid var(--border);
+    border-radius: 6px; padding: 20px;
+    background: var(--surface2);
+  }
+
+  .compare-card.trad { border-top: 2px solid var(--muted); }
+  .compare-card.ml { border-top: 2px solid var(--orange); }
+
+  .compare-card h4 {
+    font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700;
+    margin-bottom: 14px; letter-spacing: 0.02em;
+  }
+
+  .compare-card.trad h4 { color: var(--text); }
+  .compare-card.ml h4 { color: var(--orange); }
+
+  .compare-card ul { padding-left: 18px; font-size: 14px; line-height: 2; }
+
+  /* TYPE CARDS */
+  .type-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 16px; margin: 14px 0;
+  }
+
+  .type-card {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 6px; padding: 20px 18px;
+    position: relative; overflow: hidden;
+  }
+
+  .type-card::before {
+    content: ''; position: absolute;
+    top: 0; left: 0; right: 0; height: 3px;
+  }
+
+  .type-card.sup::before { background: var(--orange); }
+  .type-card.unsup::before { background: var(--blue); }
+  .type-card.rl::before { background: var(--green); }
+
+  .type-card .tc-label {
+    font-family: 'Syne Mono', monospace; font-size: 9px;
+    letter-spacing: 0.2em; text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .type-card.sup .tc-label { color: var(--orange); }
+  .type-card.unsup .tc-label { color: var(--blue2); }
+  .type-card.rl .tc-label { color: var(--green); }
+
+  .type-card h4 {
+    font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700;
+    color: var(--heading); margin-bottom: 10px;
+  }
+
+  .type-card p { font-size: 13px; color: var(--text); line-height: 1.65; margin-bottom: 12px; }
+
+  .type-card .algos {
+    font-size: 12px; color: var(--muted);
+    line-height: 1.8;
+  }
+
+  /* ALGO BADGES */
+  .algo-list { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
+  .algo {
+    font-family: 'Syne Mono', monospace; font-size: 11px;
+    padding: 3px 9px; border-radius: 2px;
+    background: var(--surface3); border: 1px solid var(--border2);
+    color: var(--text);
+  }
+
+  /* WARNING */
+  .warn {
+    background: rgba(240,192,64,0.06);
+    border: 1px solid rgba(240,192,64,0.3);
+    border-left: 3px solid var(--yellow);
+    border-radius: 4px; padding: 13px 17px;
+    margin: 12px 0; font-size: 14px; color: #f5e090;
+  }
+
+  .warn::before { content: '⚠  '; }
+
+  /* KEY RESULT */
+  .key {
+    background: var(--green-dim);
+    border: 1px solid rgba(46,204,113,0.3);
+    border-radius: 4px; padding: 12px 17px;
+    margin: 12px 0; font-size: 14px; color: #a8f0c8;
+  }
+
+  .key::before { content: '★  '; color: var(--green); }
+
+  /* STEPS */
+  .steps { margin: 14px 0; }
+
+  .step-item {
+    display: flex; gap: 16px; align-items: flex-start;
+    padding: 14px 0; border-bottom: 1px solid var(--border);
+  }
+
+  .step-item:last-child { border-bottom: none; }
+
+  .step-num {
+    font-family: 'Syne', sans-serif; font-weight: 800;
+    font-size: 28px; color: var(--orange); opacity: 0.25;
+    line-height: 1; flex-shrink: 0; min-width: 36px;
+    margin-top: -2px;
+  }
+
+  .step-content h5 {
+    font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700;
+    color: var(--heading); margin-bottom: 4px;
+  }
+
+  .step-content p { font-size: 13px; color: var(--text); line-height: 1.65; }
+  .step-content .sc-tag {
+    font-family: 'Syne Mono', monospace; font-size: 11px;
+    color: var(--orange2); background: var(--orange-dim);
+    padding: 2px 7px; border-radius: 2px; margin-top: 6px; display: inline-block;
+  }
+
+  /* COLLAPSIBLE */
+  details {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 4px; margin: 14px 0; overflow: hidden;
+  }
+
+  details summary {
+    padding: 13px 18px; cursor: pointer;
+    font-family: 'Syne Mono', monospace; font-size: 11px;
+    letter-spacing: 0.1em; color: var(--muted); text-transform: uppercase;
+    display: flex; align-items: center; gap: 10px;
+    user-select: none; list-style: none; transition: all 0.15s;
+  }
+
+  details summary:hover { color: var(--text); background: var(--surface2); }
+  details summary::before { content: '▶'; font-size: 8px; color: var(--orange); transition: transform 0.2s; }
+  details[open] summary::before { transform: rotate(90deg); }
+  details[open] summary { border-bottom: 1px solid var(--border); }
+
+  .det-body { padding: 20px 22px; background: var(--bg); }
+
+  /* RECALL */
+  .recall-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+  .rc {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 4px; padding: 16px 18px;
+  }
+
+  .rc h5 {
+    font-family: 'Syne Mono', monospace; font-size: 9px;
+    letter-spacing: 0.18em; text-transform: uppercase; margin-bottom: 12px;
+  }
+
+  .rc.quick h5 { color: var(--green); }
+  .rc.exam h5 { color: var(--red); }
+  .rc ol, .rc ul { padding-left: 18px; font-size: 13px; line-height: 2; }
+
+  /* SUMMARY */
+  .summary {
+    background: linear-gradient(135deg, var(--surface2), #110a06);
+    border: 1px solid var(--border2);
+    border-top: 2px solid var(--orange);
+    border-radius: 4px; padding: 22px 26px; margin-top: 28px;
+  }
+
+  .summary h4 {
+    font-family: 'Syne Mono', monospace; font-size: 10px;
+    letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--orange2); margin-bottom: 14px;
+  }
+
+  .summary ul { padding-left: 18px; font-size: 14px; line-height: 2.1; }
+  .summary li { margin-bottom: 1px; }
+
+  /* HORIZONTAL RULE */
+  hr { border: none; border-top: 1px solid var(--border); margin: 56px 0; }
+
+  /* CODE */
+  code {
+    font-family: 'Syne Mono', monospace; font-size: 12px;
+    background: var(--surface2); padding: 2px 7px;
+    border-radius: 3px; color: var(--orange2);
+  }
+
+  pre {
+    font-family: 'Syne Mono', monospace; font-size: 12px;
+    background: #070707; border: 1px solid var(--border);
+    border-radius: 4px; padding: 16px 18px; overflow-x: auto;
+    margin: 10px 0; color: #a8d4f0; line-height: 1.7;
+  }
+
+  /* EDA FLOW */
+  .eda-flow {
+    display: grid; grid-template-columns: repeat(6, 1fr);
+    gap: 2px; margin: 16px 0;
+  }
+
+  .eda-step {
+    background: var(--surface2); border: 1px solid var(--border);
+    padding: 12px 8px; text-align: center;
+    position: relative;
+  }
+
+  .eda-step .en {
+    font-family: 'Syne', sans-serif; font-weight: 800;
+    font-size: 22px; color: var(--orange); opacity: 0.3; line-height: 1;
+  }
+
+  .eda-step .et {
+    font-family: 'Syne Mono', monospace; font-size: 9px;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--text); margin-top: 4px; line-height: 1.4;
+  }
+
+  /* FEATURE SELECTION */
+  .fs-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 14px 0; }
+
+  .fs-card {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 4px; padding: 16px;
+  }
+
+  .fs-card .fs-num {
+    font-family: 'Syne Mono', monospace; font-size: 9px;
+    letter-spacing: 0.15em; text-transform: uppercase;
+    color: var(--orange); margin-bottom: 8px;
+  }
+
+  .fs-card h5 {
+    font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700;
+    color: var(--heading); margin-bottom: 8px;
+  }
+
+  .fs-card ul { padding-left: 16px; font-size: 12px; line-height: 1.9; color: var(--text); }
+
+  /* MASTER SHEET */
+  .master { background: var(--surface); border: 1px solid var(--border2); border-radius: 6px; padding: 30px; margin: 24px 0; }
+  .master h3 { font-family: 'Syne Mono', monospace; font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--orange2); margin-bottom: 18px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+  @media (max-width: 900px) {
+    #sidebar { display: none; }
+    #main { margin-left: 0; padding: 24px 18px; }
+    .type-grid { grid-template-columns: 1fr; }
+    .compare-grid, .recall-grid, .fs-grid { grid-template-columns: 1fr; }
+    .eda-flow { grid-template-columns: repeat(3, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<div id="progress"><div id="pbar"></div></div>
+
+<!-- SIDEBAR -->
+<nav id="sidebar">
+  <div class="sb-header">
+    <div class="sb-tag">ML · Part 1</div>
+    <h3>Machine Learning<br>Study System</h3>
+  </div>
+
+  <div class="sb-group">
+    <div class="sb-group-label">Foundations</div>
+    <a href="#s1"><span class="n">01</span> What is ML?</a>
+    <a href="#s2"><span class="n">02</span> AI vs ML vs DL</a>
+    <a href="#s3"><span class="n">03</span> Types of ML</a>
+    <a href="#s4"><span class="n">04</span> Real-World Applications</a>
+  </div>
+
+  <div class="sb-group">
+    <div class="sb-group-label">Data Pipeline</div>
+    <a href="#s5"><span class="n">05</span> EDA</a>
+    <a href="#s6"><span class="n">06</span> Data Cleaning</a>
+    <a href="#s7"><span class="n">07</span> Data Preprocessing</a>
+    <a href="#s8"><span class="n">08</span> Feature Engineering</a>
+    <a href="#s9"><span class="n">09</span> Feature Selection</a>
+  </div>
+
+  <div class="sb-group">
+    <div class="sb-group-label">Reference</div>
+    <a href="#s10"><span class="n">★</span> Master Cheat Sheet</a>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<main id="main">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-tags">
+      <span class="htag o">Machine Learning · Part 1</span>
+      <span class="htag b">60 Slides → Compressed</span>
+      <span class="htag g">Foundations + Data Pipeline</span>
+    </div>
+    <h1>Machine<br><span>Learning</span></h1>
+    <p class="hero-sub">Complete study system covering ML fundamentals, AI/ML/DL distinctions, all three learning types, and the full data pipeline from EDA to feature selection.</p>
+    <div class="hero-stats">
+      <div class="stat"><div class="val">9</div><div class="lbl">Core Topics</div></div>
+      <div class="stat"><div class="val">3</div><div class="lbl">ML Types</div></div>
+      <div class="stat"><div class="val">11</div><div class="lbl">ML Pipeline Steps</div></div>
+      <div class="stat"><div class="val">60</div><div class="lbl">Slides Compressed</div></div>
+    </div>
+  </div>
+
+  <!-- ===== SECTION 1: WHAT IS ML ===== -->
+  <div class="section" id="s1">
+    <div class="section-header">
+      <span class="s-badge o">01</span>
+      <div class="s-title">
+        <h2>What is Machine Learning?</h2>
+        <div class="sub">definition · core idea · traditional vs ML</div>
+      </div>
+    </div>
+
+    <div class="intuition">
+      Instead of writing rules manually, you feed the machine data + answers and let it find the rules itself.
+    </div>
+
+    <div class="sub-sec">
+      <div class="sub-label">Definition</div>
+      <p><strong>Machine Learning</strong> is a way of teaching computers to learn from data — just like we humans learn from experience. Instead of programming every step explicitly, we give machines lots of data and let them figure out patterns on their own.</p>
+    </div>
+
+    <div class="sub-sec">
+      <div class="sub-label">Traditional Programming vs Machine Learning</div>
+      <div class="compare-grid">
+        <div class="compare-card trad">
+          <h4>Traditional Programming</h4>
+          <ul>
+            <li>Give <strong>rules + data</strong> → get result</li>
+            <li>You write all the logic manually</li>
+            <li>Brittle — breaks when rules change</li>
+            <li>Works well for well-defined problems</li>
+          </ul>
+        </div>
+        <div class="compare-card ml">
+          <h4>Machine Learning</h4>
+          <ul>
+            <li>Give <strong>data + result</strong> → get rules (model)</li>
+            <li>Machine learns patterns automatically</li>
+            <li>Adapts — improves with more data</li>
+            <li>Works well for complex, pattern-based problems</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="sub-sec">
+      <div class="sub-label">The Core Formula</div>
+      <div class="key">Data + Algorithm → Model → Predictions. The model is the learned set of rules (weights, parameters) that can make predictions on new, unseen data.</div>
+    </div>
+
+    <div class="summary">
+      <h4>📌 Ultra-Compact Summary</h4>
+      <ul>
+        <li>ML = teaching computers to learn from data without explicit programming</li>
+        <li>Traditional: rules + data → output | ML: data + output → rules (model)</li>
+        <li>ML improves with more data; traditional programming doesn't</li>
+        <li>Powers: Netflix recommendations, Gmail spam filter, Face ID, self-driving cars</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ===== SECTION 2: AI vs ML vs DL ===== -->
+  <div class="section" id="s2">
+    <div class="section-header">
+      <span class="s-badge o">02</span>
+      <div class="s-title">
+        <h2>AI vs ML vs Deep Learning</h2>
+        <div class="sub">nested hierarchy · scope · examples</div>
+      </div>
+    </div>
+
+    <div class="intuition">
+      Think of nested circles: AI is the biggest umbrella, ML lives inside it, and Deep Learning lives inside ML.
+    </div>
+
+    <div class="sub-sec">
+      <div class="sub-label">The Hierarchy</div>
+      <table>
+        <thead><tr><th>Level</th><th>What It Is</th><th>Key Characteristic</th><th>Examples</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><strong style="color:var(--text)">AI</strong><br><small style="color:var(--muted)">Artificial Intelligence</small></td>
+            <td>The big umbrella — science of making machines <em>smart</em> like humans</td>
+            <td>Any system that mimics human intelligence</td>
+            <td>Chess AI, Alexa, Self-driving cars</td>
+          </tr>
+          <tr>
+            <td><strong style="color:var(--orange2)">ML</strong><br><small style="color:var(--muted)">Machine Learning</small></td>
+            <td>Subset of AI — machines learn from <strong>data</strong> and improve over time</td>
+            <td>Learns patterns without being explicitly programmed</td>
+            <td>YouTube recommendations, Netflix, Gmail spam</td>
+          </tr>
+          <tr>
+            <td><strong style="color:var(--blue2)">DL</strong><br><small style="color:var(--muted)">Deep Learning</small></td>
+            <td>Subset of ML — uses <strong>neural networks</strong> inspired by the human brain</td>
+            <td>Handles big, complex, unstructured data (images, speech, text)</td>
+            <td>ChatGPT, Face recognition, Self-driving vision</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="sub-sec">
+      <div class="sub-label">Key Distinctions</div>
+      <div class="key">AI ⊃ ML ⊃ DL. All Deep Learning is ML. All ML is AI. But not all AI is ML, and not all ML is Deep Learning.</div>
+      <div class="warn"><strong>Common mistake:</strong> People use AI, ML, and DL interchangeably. They are NOT the same. DL specifically requires neural networks. ML can work without neural networks (e.g., Linear Regression, Decision Trees).</div>
+    </div>
+
+    <details>
+      <summary>Quick Recall + Practice Questions</summary>
+      <div class="det-body">
+        <div class="recall-grid">
+          <div class="rc quick">
+            <h5>🔁 Quick Recall</h5>
+            <ol>
+              <li>Which is the broadest term: AI, ML, or DL?</li>
+              <li>What makes DL different from regular ML?</li>
+              <li>Is ChatGPT an AI, ML, or DL example?</li>
+              <li>Give one ML example that is NOT Deep Learning.</li>
+              <li>What does "subset" mean in this context?</li>
+            </ol>
+          </div>
+          <div class="rc exam">
+            <h5>📝 Interview/Exam Questions</h5>
+            <ol>
+              <li>Explain AI vs ML vs DL with the nested circle analogy.</li>
+              <li>Can ML work without deep learning? Give an example.</li>
+              <li>Why is self-driving vision considered DL and not just ML?</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+    </details>
+
+    <div class="summary">
+      <h4>📌 Ultra-Compact Summary</h4>
+      <ul>
+        <li>AI = big umbrella (any intelligent machine behavior)</li>
+        <li>ML = subset of AI using data to learn patterns automatically</li>
+        <li>DL = subset of ML using neural networks for complex data</li>
+        <li>Hierarchy: AI ⊃ ML ⊃ DL</li>
+        <li>DL needs lots of data + compute; traditional ML can work with less</li>
+      </ul>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- ===== SECTION 3: TYPES OF ML ===== -->
+  <div class="section" id="s3">
+    <div class="section-header">
+      <span class="s-badge b">03</span>
+      <div class="s-title">
+        <h2>Types of Machine Learning</h2>
+        <div class="sub">supervised · unsupervised · reinforcement</div>
+      </div>
+    </div>
+
+    <div class="intuition">
+      Think: supervised = learning with a teacher, unsupervised = exploring on your own, reinforcement = learning by trial and error (reward/punishment).
+    </div>
+
+    <div class="type-grid">
+      <div class="type-card sup">
+        <div class="tc-label">Type 1</div>
+        <h4>Supervised Learning</h4>
+        <p>You give the machine <strong>labeled data</strong> — both input AND correct output. It learns to map inputs to outputs and predict on new data.</p>
+        <p><strong>Analogy:</strong> A student learning with a teacher who gives correct answers.</p>
+        <div class="tc-label" style="margin-top:10px;">Algorithms</div>
+        <div class="algo-list">
+          <span class="algo">Linear Regression</span>
+          <span class="algo">Logistic Regression</span>
+          <span class="algo">Decision Tree</span>
+          <span class="algo">Naive Bayes</span>
+          <span class="algo">SVM</span>
+          <span class="algo">KNN</span>
+          <span class="algo">Random Forest</span>
+          <span class="algo">XGBoost</span>
+        </div>
+      </div>
+
+      <div class="type-card unsup">
+        <div class="tc-label">Type 2</div>
+        <h4>Unsupervised Learning</h4>
+        <p>You give the machine <strong>only input data</strong> — no labels. It finds patterns, groups similar items, reduces complexity, spots outliers.</p>
+        <p><strong>Analogy:</strong> Exploring a new city without a map — discovering structure yourself.</p>
+        <div class="tc-label" style="margin-top:10px;">Algorithms</div>
+        <div class="algo-list">
+          <span class="algo">K-Means</span>
+          <span class="algo">DBSCAN</span>
+          <span class="algo">PCA</span>
+          <span class="algo">Autoencoders</span>
+          <span class="algo">Isolation Forest</span>
+        </div>
+      </div>
+
+      <div class="type-card rl">
+        <div class="tc-label">Type 3</div>
+        <h4>Reinforcement Learning</h4>
+        <p>An <strong>agent</strong> takes actions in an environment, receives rewards for good behavior and penalties for bad. Learns by trial and error to maximize cumulative reward.</p>
+        <p><strong>Analogy:</strong> Training a dog — reward good actions, ignore/correct bad ones.</p>
+        <div class="tc-label" style="margin-top:10px;">Algorithms</div>
+        <div class="algo-list">
+          <span class="algo">Q-Learning</span>
+          <span class="algo">PPO</span>
+          <span class="algo">DQN</span>
+          <span class="algo">A3C</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="sub-sec" style="margin-top:24px;">
+      <div class="sub-label">Comparison Table</div>
+      <table>
+        <thead><tr><th>Dimension</th><th>Supervised</th><th>Unsupervised</th><th>Reinforcement</th></tr></thead>
+        <tbody>
+          <tr><td>Labels needed?</td><td>YES — input + output</td><td>NO — input only</td><td>NO — reward signal</td></tr>
+          <tr><td>Goal</td><td>Predict output</td><td>Find structure/patterns</td><td>Maximize reward</td></tr>
+          <tr><td>Feedback type</td><td>Correct answer given</td><td>None (self-supervised)</td><td>Reward / Penalty</td></tr>
+          <tr><td>Real example</td><td>Loan approval prediction</td><td>Customer segmentation</td><td>Game-playing AI (AlphaGo)</td></tr>
+          <tr><td>Data requirement</td><td>Labeled — expensive</td><td>Unlabeled — cheap</td><td>Environment interaction</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="sub-sec">
+      <div class="sub-label">Supervised Learning in Detail — With Example</div>
+      <p>Machine learning is a game of prediction. Given labeled training data (input + output), the model learns a mapping function.</p>
+      <table>
+        <thead><tr><th>Income ($)</th><th>Credit Score</th><th>Loan Approved?</th></tr></thead>
+        <tbody>
+          <tr><td>40,000</td><td>750</td><td style="color:var(--green)">Yes ✓</td></tr>
+          <tr><td>25,000</td><td>600</td><td style="color:var(--red)">No ✗</td></tr>
+          <tr><td>50,000</td><td>800</td><td style="color:var(--green)">Yes ✓</td></tr>
+          <tr><td>30,000</td><td>580</td><td style="color:var(--red)">No ✗</td></tr>
+        </tbody>
+      </table>
+      <p style="margin-top:10px; font-size:14px;">Income + Credit Score = <strong>input features (X)</strong>. Loan = <strong>target variable (y)</strong>. Model learns: high income + high credit score → Yes.</p>
+    </div>
+
+    <div class="sub-sec">
+      <div class="sub-label">Unsupervised Learning — What It Does</div>
+      <div class="key">Unsupervised learning doesn't predict anything. It finds hidden structure: clusters similar data (clustering), compresses data (dimensionality reduction), detects anomalies (outlier detection).</div>
+      <p style="font-size:14px;">Example: Google Search groups similar search queries together. No one labeled them — the algorithm discovered the groupings on its own.</p>
+      <div class="warn"><strong>Key point:</strong> Unsupervised is often used WITH supervised learning — use unsupervised to clean/explore data, then supervised to build prediction models.</div>
+    </div>
+
+    <details>
+      <summary>Quick Recall + Practice Questions</summary>
+      <div class="det-body">
+        <div class="recall-grid">
+          <div class="rc quick">
+            <h5>🔁 Quick Recall</h5>
+            <ol>
+              <li>What is the key difference between supervised and unsupervised?</li>
+              <li>Name 3 supervised learning algorithms.</li>
+              <li>What analogy describes reinforcement learning?</li>
+              <li>Does unsupervised learning need labels?</li>
+              <li>What is the agent's goal in reinforcement learning?</li>
+            </ol>
+          </div>
+          <div class="rc exam">
+            <h5>📝 Interview/Exam Questions</h5>
+            <ol>
+              <li>Classify these tasks: spam detection, customer clustering, chess AI. What type of ML is each?</li>
+              <li>Why is labeled data expensive in supervised learning?</li>
+              <li>How is unsupervised learning used alongside supervised in real projects?</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+    </details>
+
+    <div class="summary">
+      <h4>📌 Ultra-Compact Summary</h4>
+      <ul>
+        <li>Supervised: labeled data → predict output (classification or regression)</li>
+        <li>Unsupervised: unlabeled data → find structure (clustering, PCA, anomaly detection)</li>
+        <li>Reinforcement: agent + environment + reward signal → optimal policy</li>
+        <li>Supervised = most common in industry; needs expensive labeled data</li>
+        <li>RL = used in games, robotics, recommendation systems</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ===== SECTION 4: REAL-WORLD APPLICATIONS ===== -->
+  <div class="section" id="s4">
+    <div class="section-header">
+      <span class="s-badge o">04</span>
+      <div class="s-title">
+        <h2>Real-World ML Applications</h2>
+        <div class="sub">industry examples · which type · why ML works</div>
+      </div>
+    </div>
+
+    <div class="intuition">
+      ML powers nearly every digital product you use daily. Recognizing which type of ML is being used is a critical interview skill.
+    </div>
+
+    <table>
+      <thead><tr><th>Application</th><th>ML Type</th><th>What It Learns</th><th>Algorithm (likely)</th></tr></thead>
+      <tbody>
+        <tr><td>YouTube Recommendations</td><td>Supervised + Unsupervised</td><td>Watch history patterns → next video</td><td>Collaborative Filtering, Neural Networks</td></tr>
+        <tr><td>Gmail Spam Detection</td><td>Supervised</td><td>Email patterns → spam or not</td><td>Naive Bayes, Logistic Regression</td></tr>
+        <tr><td>Voice Assistants (Siri, Alexa)</td><td>DL (Supervised)</td><td>Speech patterns → text → intent</td><td>RNN, Transformer</td></tr>
+        <tr><td>Self-Driving Cars (vision)</td><td>DL (Supervised)</td><td>Camera frames → objects + decisions</td><td>CNN, YOLO</td></tr>
+        <tr><td>Face Unlock on Phones</td><td>DL (Supervised)</td><td>Face embeddings → identity match</td><td>FaceNet, CNN</td></tr>
+        <tr><td>Netflix Recommendations</td><td>Unsupervised + Supervised</td><td>Viewing history → genre clusters → recommendations</td><td>Matrix Factorization</td></tr>
+        <tr><td>ChatGPT</td><td>DL (RL from human feedback)</td><td>Text patterns + human preference</td><td>Transformer + RLHF</td></tr>
+        <tr><td>Fraud Detection</td><td>Supervised + Unsupervised</td><td>Transaction patterns → fraud or not</td><td>Isolation Forest, XGBoost</td></tr>
+      </tbody>
+    </table>
+
+    <div class="key">Pattern to recognize: structured tabular data → usually supervised ML. Unstructured data (images, text, audio) → usually Deep Learning.</div>
+  </div>
+
+  <hr>
+
+  <!-- ===== SECTION 5: EDA ===== -->
+  <div class="section" id="s5">
+    <div class="section-header">
+      <span class="s-badge b">05</span>
+      <div class="s-title">
+        <h2>Exploratory Data Analysis (EDA)</h2>
+        <div class="sub">understand before modeling · 6 EDA steps · visualizations</div>
+      </div>
+    </div>
+
+    <div class="intuition">
+      EDA is detective work — you're interrogating your data with curiosity before touching any model or transformation.
+    </div>
+
+    <div class="sub-sec">
+      <div class="sub-label">Definition</div>
+      <p><strong>EDA (Exploratory Data Analysis)</strong> is the process of analyzing, visualizing, and understanding your data <em>before</em> building any machine learning model. It tells you what your data looks like, what's wrong with it, and what patterns exist.</p>
+      <div class="key">EDA tells you WHAT'S WRONG. Data Cleaning FIXES it. You can't clean what you don't understand.</div>
+    </div>
+
+    <div class="sub-sec">
+      <div class="sub-label">ML Pipeline — Where EDA Fits</div>
+      <div class="eda-flow">
+        <div class="eda-step"><div class="en">1</div><div class="et">Problem Definition</div></div>
+        <div class="eda-step"><div class="en">2</div><div class="et">Data Collection</div></div>
+        <div class="eda-step" style="border-color:var(--orange); background:rgba(255,107,43,0.08)">
+          <div class="en" style="opacity:0.8">3</div>
+          <div class="et" style="color:var(--orange2)">EDA ★</div>
+        </div>
+        <div class="eda-step"><div class="en">4</div><div class="et">Preprocessing</div></div>
+        <div class="eda-step"><div class="en">5</div><div class="et">Feature Eng.</div></div>
+        <div class="eda-step"><div class="en">6+</div><div class="et">Model → Evaluate</div></div>
+      </div>
+    </div>
+
+    <div class="sub-sec">
+      <div class="sub-label">6 EDA Steps</div>
+      <div class="steps">
+        <div class="step-item">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <h5>View the Data</h5>
+            <p>Load and inspect: shape, columns, data types, first/last rows.</p>
+            <span class="sc-tag">df.head() · df.tail() · df.shape · df.info() · df.dtypes</span>
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            <h5>Summary Statistics</h5>
+            <p>Understand spread and central tendency of numerical features.</p>
+            <span class="sc-tag">df.describe() → mean, median, std, min, max, quartiles</span>
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">3</div>
+          <div class="step-content">
+            <h5>Value Counts (Categorical)</h5>
+            <p>How many unique values per column? Distribution of categories?</p>
+            <span class="sc-tag">df['col'].value_counts() · df.nunique()</span>
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">4</div>
+          <div class="step-content">
+            <h5>Missing Value Analysis</h5>
+            <p>Identify nulls — where are the gaps, what percent of data is missing?</p>
+            <span class="sc-tag">df.isnull().sum() · df.isnull().mean() * 100</span>
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">5</div>
+          <div class="step-content">
+            <h5>Visualizations</h5>
+            <p>See distributions, relationships, outliers. Choose the right plot for the question.</p>
+            <span class="sc-tag">Histogram · Boxplot · Bar plot · Heatmap · Scatter plot</span>
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">6</div>
+          <div class="step-content">
+            <h5>Target Variable Exploration</h5>
+            <p>How does the output variable relate to input features? Check for imbalance.</p>
+            <span class="sc-tag">df.groupby('target').mean() · correlation with target</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sub-sec">
+      <div class="sub-label">Visualization Guide</div>
+      <table>
+        <thead><tr><th>Plot Type</th><th>Use When</th><th>Answers</th></tr></thead>
+        <tbody>
+          <tr><td>Histogram</td><td>1 numerical feature</td><td>What is the distribution? Is it skewed?</td></tr>
+          <tr><td>Box Plot</td><td>1 numerical feature</td><td>Where are outliers? What's the spread (IQR)?</td></tr>
+          <tr><td>Bar Plot</td><td>1 categorical feature</td><td>Which category appears most? Class balance?</td></tr>
+          <tr><td>Scatter Plot</td><td>2 numerical features</td><td>Is there a linear/non-linear relationship?</td></tr>
+          <tr><td>Correlation Heatmap</td><td>All numerical features</td><td>Which features are highly correlated (multicollinearity)?</td></tr>
+          <tr><td>Pair Plot</td><td>Multiple numerical features</td><td>Pairwise relationships at a glance</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="summary">
+      <h4>📌 Ultra-Compact Summary</h4>
+      <ul>
+        <li>EDA = understand data BEFORE cleaning or modeling</li>
+        <li>6 steps: View → Summary stats → Value counts → Missing values → Visualize → Target exploration</li>
+        <li>Histogram = distribution | Boxplot = outliers | Heatmap = correlations | Scatter = relationships</li>
+        <li>EDA guides every decision in cleaning and feature engineering</li>
+        <li>You can't clean what you don't understand first</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ===== SECTION 6: DATA CLEANING ===== -->
+  <div class="section" id="s6">
+    <div class="section-header">
+      <span class="s-badge b">06</span>
+      <div class="s-title">
+        <h2>Data Cleaning</h2>
+        <div class="sub">fix what's wrong · 7 cleaning steps · decision rules</div>
+      </div>
+    </div>
+
+    <div class="intuition">
+      Data cleaning is fixing errors that make the data invalid. It's not glamorous, but it's 80% of the work in real-world projects.
+    </div>
+
+    <div class="sub-sec">
+      <div class="sub-label">7 Data Cleaning Steps</div>
+      <div class="steps">
+        <div class="step-item">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <h5>Handle Missing Values</h5>
+            <p>Identify null/NaN cells. Choose strategy based on % missing and importance.</p>
+            <table style="margin-top:10px;">
+              <thead><tr><th>Strategy</th><th>When to Use</th></tr></thead>
+              <tbody>
+                <tr><td>Drop rows/columns</td><td>Very few missing (&lt;5%), or column has too many missing (&gt;70%)</td></tr>
+                <tr><td>Impute with Mean</td><td>Numerical feature, normally distributed</td></tr>
+                <tr><td>Impute with Median</td><td>Numerical feature, skewed or has outliers</td></tr>
+                <tr><td>Impute with Mode</td><td>Categorical feature</td></tr>
+                <tr><td>Advanced (KNN, Regression)</td><td>Important feature, complex missing pattern</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            <h5>Remove Duplicates</h5>
+            <p>Exact duplicate rows bias the model by counting the same observation multiple times.</p>
+            <span class="sc-tag">df.duplicated().sum() · df.drop_duplicates(inplace=True)</span>
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">3</div>
+          <div class="step-content">
+            <h5>Fix Data Types</h5>
+            <p>Numbers stored as strings, dates as text — models can't learn from wrong types.</p>
+            <span class="sc-tag">df['age'] = df['age'].astype(int) · pd.to_datetime(df['date'])</span>
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">4</div>
+          <div class="step-content">
+            <h5>Handle Inconsistent Categories</h5>
+            <p>Same category with different spellings/cases treated as different values by the model.</p>
+            <span class="sc-tag">"Male", "male", "MALE" → all become "male" | df['col'].str.lower().str.strip()</span>
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">5</div>
+          <div class="step-content">
+            <h5>Detect and Handle Outliers</h5>
+            <p>Use IQR fence (Q1−1.5×IQR, Q3+1.5×IQR) or Z-score (|z|>3). Then decide: remove or cap.</p>
+            <span class="sc-tag">Removing: if clearly a data error | Capping: if extreme but valid (e.g., cap to 95th percentile)</span>
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">6</div>
+          <div class="step-content">
+            <h5>Fix String / Whitespace Issues</h5>
+            <p>" hello " ≠ "hello" — leading/trailing spaces create false unique values.</p>
+            <span class="sc-tag">df['col'].str.strip() · df['col'].str.replace(' ', '_')</span>
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">7</div>
+          <div class="step-content">
+            <h5>Fix Logic / Domain Errors</h5>
+            <p>Physically impossible values: age = -5, BMI = 150, price = -500. Replace or remove.</p>
+            <span class="sc-tag">df[df['age'] < 0] → replace with median or drop</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="warn"><strong>Remember:</strong> EDA tells you WHAT'S wrong. Data Cleaning FIXES it. These are sequential, not interchangeable steps.</div>
+
+    <div class="summary">
+      <h4>📌 Ultra-Compact Summary</h4>
+      <ul>
+        <li>7 cleaning steps: missing values → duplicates → data types → inconsistent categories → outliers → whitespace → domain errors</li>
+        <li>Missing values: drop (if few), mean/median impute (numerical), mode impute (categorical)</li>
+        <li>Use median imputation for skewed data — not mean (mean is pulled by outliers)</li>
+        <li>Always clean AFTER EDA — cleaning without understanding is guessing</li>
+        <li>Cleaning is ~80% of real-world data science work</li>
+      </ul>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- ===== SECTION 7: DATA PREPROCESSING ===== -->
+  <div class="section" id="s7">
+    <div class="section-header">
+      <span class="s-badge g">07</span>
+      <div class="s-title">
+        <h2>Data Preprocessing</h2>
+        <div class="sub">transform valid data into model-ready format</div>
+      </div>
+    </div>
+
+    <div class="intuition">
+      Data cleaning fixes errors. Preprocessing transforms valid but raw data into a format that ML algorithms can actually learn from.
+    </div>
+
+    <div class="sub-sec">
+      <div class="sub-label">Cleaning vs Preprocessing</div>
+      <div class="compare-grid">
+        <div class="compare-card trad">
+          <h4>Data Cleaning</h4>
+          <ul>
+            <li>Fixes mistakes, errors, inconsistencies</li>
+            <li>Removes invalid data</li>
+            <li>Makes data <em>correct</em></li>
+            <li>Example: fixing "Male" vs "male"</li>
+          </ul>
+        </div>
+        <div class="compare-card ml">
+          <h4>Data Preprocessing</h4>
+          <ul>
+            <li>Transforms valid data into usable format</li>
+            <li>Encodes, scales, normalizes</li>
+            <li>Makes data <em>model-ready</em></li>
+            <li>Example: converting "male" → 0, "female" → 1</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="sub-sec">
+      <div class="sub-label">1. Encoding Categorical Variables</div>
+      <p>ML models only understand numbers. Text categories must be converted.</p>
+      <table>
+        <thead><tr><th>Method</th><th>When to Use</th><th>Example</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><strong>Label Encoding</strong></td>
+            <td>Ordered categories (ordinal)</td>
+            <td>"Low"→0, "Medium"→1, "High"→2</td>
+          </tr>
+          <tr>
+            <td><strong>One-Hot Encoding</strong></td>
+            <td>Unordered categories (nominal) — no inherent rank</td>
+            <td>"Red", "Blue", "Green" → 3 binary columns</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="warn"><strong>Don't use Label Encoding for nominal data.</strong> If you encode "Red"=0, "Blue"=1, "Green"=2, the model might think Green > Blue > Red, which is meaningless and misleading.</div>
+      <pre>from sklearn.preprocessing import LabelEncoder, OneHotEncoder
+le = LabelEncoder()
+df['size'] = le.fit_transform(df['size'])  # Ordinal only
+
+# One-hot
+df = pd.get_dummies(df, columns=['color'], drop_first=True)</pre>
+    </div>
+
+    <div class="sub-sec">
+      <div class="sub-label">2. Feature Transformation</div>
+      <p>Skewed distributions hurt models that assume normality. Apply mathematical transforms to make distributions more normal.</p>
+      <table>
+        <thead><tr><th>Transform</th><th>Use When</th><th>Code</th></tr></thead>
+        <tbody>
+          <tr><td>Log transform</td><td>Right-skewed (long right tail)</td><td><code>np.log1p(df['col'])</code></td></tr>
+          <tr><td>Square root</td><td>Moderate right skew</td><td><code>np.sqrt(df['col'])</code></td></tr>
+          <tr><td>Square</td><td>Left-skewed</td><td><code>df['col'] ** 2</code></td></tr>
+          <tr><td>Box-Cox</td><td>Optimal power transform (positive values)</td><td><code>scipy.stats.boxcox()</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="sub-sec">
+      <div class="sub-label">3. Feature Scaling</div>
+      <p>Algorithms that use distance or gradient (KNN, SVM, Linear Regression, Neural Networks) are sensitive to feature scales. Income ($40,000) and Age (25) are on completely different scales.</p>
+      <table>
+        <thead><tr><th>Method</th><th>Formula</th><th>Output Range</th><th>Use When</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><strong>Min-Max Normalization</strong></td>
+            <td>(x − min) / (max − min)</td>
+            <td>[0, 1]</td>
+            <td>Known bounds, no extreme outliers</td>
+          </tr>
+          <tr>
+            <td><strong>Standardization (Z-score)</strong></td>
+            <td>(x − mean) / std</td>
+            <td>Mean=0, SD=1</td>
+            <td>Normal distribution, has outliers</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="warn"><strong>Critical rule:</strong> Fit scaler on TRAINING data only. Apply (transform) on both train and test. NEVER fit on test data — this is called data leakage and will give falsely optimistic results.</div>
+      <pre>from sklearn.preprocessing import MinMaxScaler, StandardScaler
+
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)   # Fit + transform on train
+X_test_scaled = scaler.transform(X_test)          # Only transform on test</pre>
+    </div>
+
+    <details>
+      <summary>Quick Recall + Practice Questions</summary>
+      <div class="det-body">
+        <div class="recall-grid">
+          <div class="rc quick">
+            <h5>🔁 Quick Recall</h5>
+            <ol>
+              <li>What is the difference between cleaning and preprocessing?</li>
+              <li>When do you use Label Encoding vs One-Hot Encoding?</li>
+              <li>Min-Max scaling formula?</li>
+              <li>Z-score standardization formula?</li>
+              <li>Why fit scaler only on training data?</li>
+            </ol>
+          </div>
+          <div class="rc exam">
+            <h5>📝 Interview/Exam Questions</h5>
+            <ol>
+              <li>A feature "Region" has values: North, South, East, West. Which encoding should you use?</li>
+              <li>Your dataset has income ($10k–$500k) and age (18–80). You're using KNN. What preprocessing is needed and why?</li>
+              <li>What is data leakage and how does it happen during scaling?</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+    </details>
+
+    <div class="summary">
+      <h4>📌 Ultra-Compact Summary</h4>
+      <ul>
+        <li>Encoding: Label = ordinal only | One-Hot = nominal (no inherent order)</li>
+        <li>Min-Max: (x−min)/(max−min) → [0,1] | Use when no extreme outliers</li>
+        <li>StandardScaler: (x−mean)/std → mean=0, std=1 | Use when outliers present</li>
+        <li>Log transform: fixes right-skewed features (income, price, house sizes)</li>
+        <li>Data leakage: never fit() on test data — use fit_transform() on train, transform() on test</li>
+        <li>Distance-based algorithms (KNN, SVM) REQUIRE feature scaling</li>
+        <li>Tree-based algorithms (RF, XGBoost) do NOT require scaling</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ===== SECTION 8: FEATURE ENGINEERING ===== -->
+  <div class="section" id="s8">
+    <div class="section-header">
+      <span class="s-badge g">08</span>
+      <div class="s-title">
+        <h2>Feature Engineering</h2>
+        <div class="sub">create new signals · expose hidden patterns · domain knowledge</div>
+      </div>
+    </div>
+
+    <div class="intuition">
+      Feature engineering is creating new features that expose useful patterns the model can't see in raw data. It's where domain expertise meets data science.
+    </div>
+
+    <div class="sub-sec">
+      <div class="sub-label">Definition & Why It Matters</div>
+      <p><strong>Feature Engineering</strong> = creating new features or transforming existing ones to expose useful patterns that ML models can learn from. ML models don't know domain logic — you have to give them the right signals.</p>
+      <div class="key">Better features > Better algorithms. A weak model with great features beats a strong model with poor features.</div>
+    </div>
+
+    <div class="sub-sec">
+      <div class="sub-label">4 Common Feature Engineering Techniques</div>
+      <table>
+        <thead><tr><th>Technique</th><th>What It Does</th><th>Example</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><strong>Mathematical Combinations</strong></td>
+            <td>Combine existing features to create a more meaningful signal</td>
+            <td>BMI = weight / height² | Price per sqft = price / area</td>
+          </tr>
+          <tr>
+            <td><strong>Target-Based Flags</strong></td>
+            <td>Create binary flags based on business domain knowledge</td>
+            <td>is_senior = (age &gt; 60) | is_high_income = (income &gt; 100k)</td>
+          </tr>
+          <tr>
+            <td><strong>Binning</strong></td>
+            <td>Convert continuous values into discrete bins (groups)</td>
+            <td>Age bins: [0–18], [18–35], [35–60], [60+]</td>
+          </tr>
+          <tr>
+            <td><strong>Time-Based Features</strong></td>
+            <td>Extract components from datetime for temporal patterns</td>
+            <td>Day of week, Month, Hour, Is weekend, Quarter, Days since event</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="warn"><strong>When NOT to engineer features:</strong> Don't create features blindly. Every new feature adds noise and can cause overfitting. Validate with feature importance or correlation before keeping it.</div>
+
+    <div class="summary">
+      <h4>📌 Ultra-Compact Summary</h4>
+      <ul>
+        <li>Feature engineering = creating NEW features from existing ones using domain knowledge</li>
+        <li>4 techniques: Math combinations | Target flags | Binning | Time-based features</li>
+        <li>Better features > Better algorithms — feature engineering often matters more than algorithm choice</li>
+        <li>Every new feature adds potential noise — validate with feature importance</li>
+        <li>Done AFTER cleaning and BEFORE model selection</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ===== SECTION 9: FEATURE SELECTION ===== -->
+  <div class="section" id="s9">
+    <div class="section-header">
+      <span class="s-badge g">09</span>
+      <div class="s-title">
+        <h2>Feature Selection</h2>
+        <div class="sub">keep what matters · remove noise · 3 methods</div>
+      </div>
+    </div>
+
+    <div class="intuition">
+      Feature selection is the opposite of engineering — instead of adding, you're removing irrelevant/redundant features to reduce noise and overfitting.
+    </div>
+
+    <div class="sub-sec">
+      <div class="sub-label">Why Feature Selection?</div>
+      <div class="key">Fewer, better features → less overfitting, faster training, better accuracy, easier interpretation. Not all features are useful.</div>
+    </div>
+
+    <div class="sub-sec">
+      <div class="sub-label">3 Categories of Feature Selection Methods</div>
+      <div class="fs-grid">
+        <div class="fs-card">
+          <div class="fs-num">Method 1</div>
+          <h5>Filter Methods</h5>
+          <p style="font-size:12px; margin-bottom:10px;">Use statistics to score each feature independently. Fast, model-agnostic.</p>
+          <ul>
+            <li>Correlation matrix → remove |r| &gt; 0.9</li>
+            <li>Chi-square test → categorical vs categorical target</li>
+            <li>ANOVA F-test → numerical feature vs categorical target</li>
+            <li>Mutual Information → non-linear relationships</li>
+          </ul>
+        </div>
+        <div class="fs-card">
+          <div class="fs-num">Method 2</div>
+          <h5>Wrapper Methods</h5>
+          <p style="font-size:12px; margin-bottom:10px;">Try feature subsets by actually training models. Slower but more accurate.</p>
+          <ul>
+            <li>Forward Selection — add features one by one</li>
+            <li>Backward Elimination — start with all, remove one by one</li>
+            <li>Recursive Feature Elimination (RFE) — repeatedly prune</li>
+          </ul>
+        </div>
+        <div class="fs-card">
+          <div class="fs-num">Method 3</div>
+          <h5>Embedded Methods</h5>
+          <p style="font-size:12px; margin-bottom:10px;">Feature selection built into the model training process.</p>
+          <ul>
+            <li>Lasso Regression → shrinks coefficients to 0</li>
+            <li>Random Forest → feature importance scores</li>
+            <li>XGBoost → gain-based feature importance</li>
+            <li>Ridge Regression → reduces but not zeroes coefficients</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="sub-sec">
+      <div class="sub-label">When to Use Which Method</div>
+      <table>
+        <thead><tr><th>Method</th><th>Speed</th><th>When to Use</th></tr></thead>
+        <tbody>
+          <tr><td>Filter</td><td>Fast ⚡</td><td>Quick baseline, high-dimensional data, early exploration</td></tr>
+          <tr><td>Wrapper</td><td>Slow 🐢</td><td>Small-medium datasets, when accuracy is paramount</td></tr>
+          <tr><td>Embedded</td><td>Medium ⚡⚡</td><td>Tree-based models, regularized regression — best of both worlds</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <details>
+      <summary>Quick Recall + Practice Questions</summary>
+      <div class="det-body">
+        <div class="recall-grid">
+          <div class="rc quick">
+            <h5>🔁 Quick Recall</h5>
+            <ol>
+              <li>Name 3 benefits of feature selection.</li>
+              <li>What correlation threshold is commonly used to drop features?</li>
+              <li>Which method is fastest: filter, wrapper, or embedded?</li>
+              <li>Which regression method shrinks coefficients to exactly 0?</li>
+              <li>What test is used for categorical feature vs categorical target?</li>
+            </ol>
+          </div>
+          <div class="rc exam">
+            <h5>📝 Interview/Exam Questions</h5>
+            <ol>
+              <li>You have 500 features and want to quickly find useful ones. Which selection method and why?</li>
+              <li>How does Lasso regression perform feature selection?</li>
+              <li>Difference between feature engineering and feature selection?</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+    </details>
+
+    <div class="summary">
+      <h4>📌 Ultra-Compact Summary</h4>
+      <ul>
+        <li>Feature selection: remove irrelevant/redundant features → less noise, less overfitting</li>
+        <li>Filter: statistics-based, fast (correlation, chi-square, ANOVA, MI)</li>
+        <li>Wrapper: model-based, slow (forward, backward, RFE)</li>
+        <li>Embedded: built into model (Lasso=zeroes coefs, RF/XGBoost=importance scores)</li>
+        <li>Engineering (add) → Selection (remove) → Modeling (train)</li>
+      </ul>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- ===== MASTER CHEAT SHEET ===== -->
+  <div class="section" id="s10">
+    <div class="section-header">
+      <span class="s-badge o">★</span>
+      <div class="s-title">
+        <h2>Master Cheat Sheet</h2>
+        <div class="sub">everything in one place · last-day revision</div>
+      </div>
+    </div>
+
+    <div class="master">
+      <h3>Definitions — 1 Line Each</h3>
+      <table>
+        <thead><tr><th>Term</th><th>1-Line Definition</th></tr></thead>
+        <tbody>
+          <tr><td>Machine Learning</td><td>Teaching computers to learn patterns from data without explicit programming</td></tr>
+          <tr><td>AI</td><td>Broad field — any system that mimics human intelligence</td></tr>
+          <tr><td>Deep Learning</td><td>Subset of ML using neural networks — handles images, text, speech</td></tr>
+          <tr><td>Supervised Learning</td><td>Labeled input+output data → learn to predict output for new inputs</td></tr>
+          <tr><td>Unsupervised Learning</td><td>Unlabeled input data → find hidden patterns, clusters, structure</td></tr>
+          <tr><td>Reinforcement Learning</td><td>Agent + environment + reward → learn optimal actions by trial and error</td></tr>
+          <tr><td>EDA</td><td>Analyze and visualize data BEFORE building models to understand it</td></tr>
+          <tr><td>Data Cleaning</td><td>Fix errors, nulls, duplicates, inconsistencies in raw data</td></tr>
+          <tr><td>Data Preprocessing</td><td>Transform valid data into model-ready format (encode, scale, transform)</td></tr>
+          <tr><td>Feature Engineering</td><td>Create new features from existing ones using domain knowledge</td></tr>
+          <tr><td>Feature Selection</td><td>Remove irrelevant/redundant features to reduce noise and overfitting</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="master">
+      <h3>ML Pipeline — Full Flow</h3>
+      <table>
+        <thead><tr><th>Step</th><th>What Happens</th><th>Key Tools/Methods</th></tr></thead>
+        <tbody>
+          <tr><td>1. Problem Definition</td><td>Classify vs Regression? Supervised vs Unsupervised?</td><td>Business understanding</td></tr>
+          <tr><td>2. Data Collection</td><td>Gather labeled/unlabeled data from sources</td><td>APIs, databases, scraping, surveys</td></tr>
+          <tr><td>3. EDA</td><td>Understand data structure, distributions, patterns</td><td>describe(), value_counts(), plots</td></tr>
+          <tr><td>4. Data Cleaning</td><td>Fix nulls, duplicates, types, outliers, inconsistencies</td><td>dropna(), fillna(), drop_duplicates()</td></tr>
+          <tr><td>5. Feature Engineering</td><td>Create new meaningful features from existing ones</td><td>Math combos, bins, datetime extraction</td></tr>
+          <tr><td>6. Feature Selection</td><td>Keep best features, remove noisy/redundant ones</td><td>Correlation, Lasso, RFE, RF importance</td></tr>
+          <tr><td>7. Split Dataset</td><td>Train/validation/test split (e.g., 70/15/15)</td><td>train_test_split()</td></tr>
+          <tr><td>8. Model Selection</td><td>Choose algorithm based on problem type and data</td><td>Linear Reg, RF, XGBoost, SVM, etc.</td></tr>
+          <tr><td>9. Model Training</td><td>Fit model on training data</td><td>model.fit(X_train, y_train)</td></tr>
+          <tr><td>10. Model Evaluation</td><td>Measure performance on validation/test set</td><td>Accuracy, RMSE, F1, AUC-ROC</td></tr>
+          <tr><td>11. Hyperparameter Tuning</td><td>Optimize model settings to improve performance</td><td>GridSearchCV, RandomizedSearchCV, Optuna</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="master">
+      <h3>Key Rules to Never Forget</h3>
+      <table>
+        <thead><tr><th>Rule</th><th>Why It Matters</th></tr></thead>
+        <tbody>
+          <tr><td>AI ⊃ ML ⊃ DL (nested, not equal)</td><td>Common exam/interview trap — they are NOT the same</td></tr>
+          <tr><td>Supervised = labels required</td><td>No labels = can't do supervised; use unsupervised or get labeled data</td></tr>
+          <tr><td>EDA before cleaning, cleaning before preprocessing</td><td>Wrong order = blind decisions = bad models</td></tr>
+          <tr><td>Median impute for skewed data (not mean)</td><td>Mean is pulled by outliers; median is robust</td></tr>
+          <tr><td>Label Encoding = ordinal only; One-Hot = nominal</td><td>Wrong encoding = model learns false ordinal relationships</td></tr>
+          <tr><td>fit() on train only — never on test (data leakage)</td><td>Leakage = falsely optimistic results that fail in production</td></tr>
+          <tr><td>Distance-based models need scaling (KNN, SVM, Linear)</td><td>Without scaling, large-scale features dominate distance</td></tr>
+          <tr><td>Tree-based models don't need scaling (RF, XGBoost)</td><td>Trees use splits, not distances — scale-invariant</td></tr>
+          <tr><td>Better features > better algorithms</td><td>Feature engineering impact > model hyperparameter tuning</td></tr>
+          <tr><td>Engineering adds; Selection removes</td><td>Both are needed — they serve opposite purposes</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="master">
+      <h3>Algorithm Quick Reference</h3>
+      <table>
+        <thead><tr><th>Algorithm</th><th>Type</th><th>Task</th><th>Needs Scaling?</th></tr></thead>
+        <tbody>
+          <tr><td>Linear Regression</td><td>Supervised</td><td>Regression (predict continuous value)</td><td>YES</td></tr>
+          <tr><td>Logistic Regression</td><td>Supervised</td><td>Classification (binary/multi-class)</td><td>YES</td></tr>
+          <tr><td>Decision Tree</td><td>Supervised</td><td>Classification & Regression</td><td>NO</td></tr>
+          <tr><td>Random Forest</td><td>Supervised (Ensemble)</td><td>Classification & Regression</td><td>NO</td></tr>
+          <tr><td>KNN</td><td>Supervised</td><td>Classification & Regression</td><td>YES (critical)</td></tr>
+          <tr><td>SVM</td><td>Supervised</td><td>Classification & Regression</td><td>YES</td></tr>
+          <tr><td>Naive Bayes</td><td>Supervised</td><td>Classification (text, spam)</td><td>NO</td></tr>
+          <tr><td>XGBoost / Gradient Boosting</td><td>Supervised (Ensemble)</td><td>Classification & Regression</td><td>NO</td></tr>
+          <tr><td>K-Means</td><td>Unsupervised</td><td>Clustering</td><td>YES</td></tr>
+          <tr><td>PCA</td><td>Unsupervised</td><td>Dimensionality reduction</td><td>YES (critical)</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+
+</main>
+
+<script>
+  // Progress bar
+  window.addEventListener('scroll', () => {
+    const s = document.documentElement;
+    document.getElementById('pbar').style.width =
+      (s.scrollTop / (s.scrollHeight - window.innerHeight) * 100) + '%';
+  });
+
+  // Active sidebar links
+  const sections = document.querySelectorAll('[id]');
+  const links = document.querySelectorAll('#sidebar a');
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        links.forEach(l => l.classList.remove('active'));
+        const a = document.querySelector(`#sidebar a[href="#${e.target.id}"]`);
+        if (a) a.classList.add('active');
+      }
+    });
+  }, { threshold: 0.2 });
+  sections.forEach(s => obs.observe(s));
+</script>
+</body>
+</html>
